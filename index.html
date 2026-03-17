@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porter — Convert Intent into Sales</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Plus Jakarta Sans', 'sans-serif'],
+          mono: ['Fira Code', 'monospace'],
+        },
+        animation: {
+          'mesh-1': 'mesh1 14s ease-in-out infinite alternate',
+          'mesh-2': 'mesh2 18s ease-in-out infinite alternate',
+          'mesh-3': 'mesh3 22s ease-in-out infinite alternate',
+          'fadeUp':  'fadeUp 0.65s ease both',
+          'fadeUp1': 'fadeUp 0.65s 0.1s ease both',
+          'fadeUp2': 'fadeUp 0.65s 0.22s ease both',
+          'fadeUp3': 'fadeUp 0.65s 0.34s ease both',
+          'fadeUp4': 'fadeUp 0.65s 0.46s ease both',
+          'float':   'floatY 7s ease-in-out infinite',
+          'float2':  'floatY 9s ease-in-out infinite 1.8s',
+          'float3':  'floatY 8s ease-in-out infinite 0.9s',
+          'marquee': 'marquee 32s linear infinite',
+          'pdot':    'pulseDot 2s ease-in-out infinite',
+        },
+        keyframes: {
+          mesh1:    { '0%': {transform:'translate(0,0) scale(1)'},    '100%': {transform:'translate(7%,-9%) scale(1.12)'} },
+          mesh2:    { '0%': {transform:'translate(0,0) scale(1.06)'}, '100%': {transform:'translate(-9%,7%) scale(1)'} },
+          mesh3:    { '0%': {transform:'translate(0,0) scale(1)'},    '100%': {transform:'translate(5%,10%) scale(1.08)'} },
+          fadeUp:   { from:{opacity:'0',transform:'translateY(18px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+          floatY:   { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-10px)'} },
+          marquee:  { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-50%)'} },
+          pulseDot: { '0%,100%':{opacity:'1',transform:'scale(1)'}, '50%':{opacity:'0.4',transform:'scale(0.8)'} },
+        },
+      }
+    }
+  }
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; box-sizing: border-box; }
+
+  /* ── COLOR TOKENS ── */
+  :root {
+    --bg:          #FAF9F6;
+    --surface:     #FFFFFF;
+    --glass:       rgba(255,255,255,0.60);
+    --h:           #0F172A;
+    --body:        #475569;
+    --mono:        #64748B;
+    --border:      rgba(15,23,42,0.08);
+    --divider:     rgba(15,23,42,0.04);
+    --indigo:      #4F46E5;
+    --indigo-dark: #4338CA;
+  }
+
+  body { background: var(--bg); color: var(--body); font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top:0; left:0; right:0; z-index:50; height:60px;
+    background: rgba(250,249,246,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── MESH BLOBS ── */
+  .blob {
+    position: absolute; border-radius:50%;
+    filter: blur(90px); pointer-events:none;
+  }
+
+  /* ── GLASS CARDS (hero only) ── */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.75);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  /* ── BENTO CARD ── */
+  .bento {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    position: relative; overflow: hidden;
+  }
+  .bento::before {
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(79,70,229,0.05), transparent 40%);
+    opacity:0; transition: opacity 0.3s;
+  }
+  .bento:hover::before { opacity:1; }
+  .bento:hover { transform: translateY(-2px); box-shadow: none; }
+  .bento > * { position: relative; z-index:1; }
+
+  /* ── DARK BENTO ── */
+  .bento-dark {
+    background: #0F172A;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    transition: transform 0.25s;
+  }
+  .bento-dark:hover { transform: translateY(-2px); box-shadow: none; }
+
+  /* ── CTA BUTTONS ── */
+  .btn-indigo {
+    background: var(--indigo); color:#fff;
+    font-weight:600; font-size:14px;
+    padding: 11px 22px; border-radius:8px;
+    transition: background 0.15s, transform 0.15s;
+    display: inline-block; text-decoration:none;
+  }
+  .btn-indigo:hover {
+    background: var(--indigo-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    color: var(--h); font-weight:500; font-size:14px;
+    padding: 11px 22px; border-radius:8px;
+    border: 1px solid var(--border);
+    transition: border-color 0.15s, color 0.15s;
+    display: inline-block; text-decoration:none;
+    background: var(--surface);
+  }
+  .btn-outline:hover { border-color: rgba(15,23,42,0.2); color: var(--indigo); }
+
+  /* ── EYEBROW ── */
+  .eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mono);
+  }
+
+  /* ── HEADINGS ── */
+  .h1 {
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 800; line-height: 0.95;
+    letter-spacing: -0.04em; color: var(--h);
+  }
+  .h2 {
+    font-size: clamp(34px, 4vw, 52px);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.04em; color: var(--h);
+  }
+  .body-lg { font-size:17px; line-height:1.65; color:var(--body); letter-spacing:-0.01em; }
+  .body-sm { font-size:14px; line-height:1.65; color:var(--body); }
+  .label-sm { font-size:12px; font-weight:600; letter-spacing:-0.01em; color:var(--h); }
+
+  /* ── PROGRESS BAR ── */
+  .bar-track { height:4px; background:rgba(15,23,42,0.06); border-radius:99px; overflow:hidden; }
+  .bar-fill  { height:100%; background:var(--indigo); border-radius:99px; }
+
+  /* ── JOURNEY ROWS ── */
+  .jrow { border-bottom: 1px solid var(--divider); padding: 14px 20px; display:flex; gap:12px; }
+  .jrow:last-child { border-bottom: none; }
+  .jrow:hover { background: rgba(15,23,42,0.015); }
+
+  .step-num-bad  { width:22px;height:22px;border-radius:50%;background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+  .step-num-good { width:22px;height:22px;border-radius:50%;background:rgba(79,70,229,0.1);color:var(--indigo);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+
+  .badge-bad  { display:inline-block;font-family:'Fira Code',mono;font-size:10px;background:#FEF2F2;color:#DC2626;border:1px solid rgba(220,38,38,0.12);padding:2px 7px;border-radius:5px;margin-top:5px; }
+  .badge-good { display:inline-block;font-family:'Fira Code',mono;font-size:10px;background:rgba(79,70,229,0.07);color:var(--indigo);border:1px solid rgba(79,70,229,0.12);padding:2px 7px;border-radius:5px;margin-top:5px; }
+
+  /* ── TICKER ── */
+  .ticker-outer { overflow:hidden; }
+  .ticker-inner { display:flex; width:max-content; }
+
+  /* ── GRID BG ── */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(15,23,42,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,23,42,0.028) 1px, transparent 1px);
+    background-size: 52px 52px;
+  }
+
+  /* ── SECTION ── */
+  .section { padding: 100px 0; border-bottom: 1px solid var(--border); }
+  .wrap    { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — TABLET (max 1024px)
+  ══════════════════════════════════════ */
+  @media(max-width:1024px) {
+    .wrap { padding: 0 32px; }
+
+    /* Hero: stack on tablet */
+    .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+    .hero-right { display: none !important; }
+
+    /* Problem 4-col → 2-col */
+    .problem-grid { grid-template-columns: repeat(2,1fr) !important; }
+
+    /* Bento 12-col → simplified */
+    .bento-discovery { grid-column: span 6 !important; }
+    .bento-refinement { grid-column: span 6 !important; }
+    .bento-stat { grid-column: span 12 !important; }
+    .bento-alignment { grid-column: span 4 !important; }
+    .bento-decision { grid-column: span 4 !important; }
+    .bento-inventory { grid-column: span 4 !important; }
+
+    /* Founders 2-col → 1-col */
+    .founders-grid { grid-template-columns: 1fr !important; }
+
+    /* Early access 2-col → 1-col */
+    .early-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+    /* Email capture 2-col → 1-col */
+    .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+    /* Platforms 2-col → 1-col */
+    .platforms-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — MOBILE (max 768px)
+  ══════════════════════════════════════ */
+  @media(max-width:768px) {
+    .wrap { padding: 0 20px; }
+    .section { padding: 64px 0; }
+
+    /* ── NAV ── */
+    .nav-links-desktop { display: none !important; }
+    .nav-signin { display: none !important; }
+    .nav-cta { font-size: 13px !important; padding: 8px 16px !important; }
+
+    /* ── HERO ── */
+    .hero-section { padding-top: 72px !important; min-height: auto !important; padding-bottom: 64px !important; }
+    .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .hero-right { display: none !important; }
+    .hero-eyebrow { font-size: 10px !important; }
+    .h1 { font-size: clamp(40px,11vw,60px) !important; }
+    .hero-sub { font-size: 15px !important; max-width: 100% !important; }
+    .hero-ctas { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    .btn-indigo { width: 100% !important; text-align: center !important; }
+    .hero-stats { flex-direction: column !important; gap: 20px !important; padding-top: 28px !important; }
+    .hero-stat-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; padding-bottom: 20px !important; border-bottom: 1px solid var(--border) !important; }
+    .hero-stat-item:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
+
+    /* ── PROBLEM ── */
+    .problem-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+    /* ── JOURNEY (dark section) ── */
+    .journey-header { grid-template-columns: 1fr !important; gap: 20px !important; margin-bottom: 36px !important; }
+    .journey-canvas-wrap { height: 260px !important; }
+
+    /* ── BENTO FEATURES ── */
+    .bento-grid { grid-template-columns: 1fr !important; }
+    .bento-grid > * { grid-column: span 1 !important; }
+
+    /* ── PLATFORMS ── */
+    .platforms-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .platforms-section { padding: 64px 0 !important; }
+
+    /* ── EARLY ACCESS ── */
+    .early-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+    .early-cta-panel { padding: 32px !important; }
+
+    /* ── FOUNDERS ── */
+    .founders-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+
+    /* ── EMAIL CAPTURE ── */
+    .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .email-form-panel { padding: 28px !important; }
+
+    /* ── JOURNEY SECTION header ── */
+    .journey-section-pad { padding: 64px 0 !important; }
+
+    /* ── TYPOGRAPHY ── */
+    .h2 { font-size: clamp(28px,8vw,40px) !important; }
+    .body-lg { font-size: 15px !important; }
+    .section-header-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 36px !important; }
+
+    /* ── CLOSING ── */
+    .closing-section { padding: 56px 0 !important; }
+    .closing-h2 { font-size: clamp(22px,7vw,32px) !important; }
+
+    /* ── FOOTER ── */
+    .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+
+    /* ── TICKER ── */
+    .ticker-section { padding: 12px 0 !important; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — SMALL MOBILE (max 480px)
+  ══════════════════════════════════════ */
+  @media(max-width:480px) {
+    .wrap { padding: 0 16px; }
+    .h1 { font-size: clamp(36px, 10vw, 48px) !important; }
+    .journey-canvas-wrap { height: 220px !important; }
+    .btn-indigo { font-size: 13px !important; padding: 10px 18px !important; }
+  }
+
+  /* ── MOBILE MENU ── */
+  #mob-menu {
+    display: none;
+    position: fixed;
+    top: 60px; left: 0; right: 0;
+    background: rgba(250,249,246,0.98);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 20px;
+    z-index: 49;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #mob-menu.open { display: flex; }
+  #mob-menu a {
+    display: block;
+    padding: 12px 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--body);
+    text-decoration: none;
+    border-bottom: 1px solid var(--divider);
+    letter-spacing: -0.01em;
+  }
+  #mob-menu a:last-child { border-bottom: none; }
+  #mob-menu a.mob-cta {
+    margin-top: 8px;
+    background: var(--indigo);
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    border-bottom: none;
+    padding: 13px;
+    font-weight: 600;
+  }
+
+  @media(max-width:768px) {
+    #mob-menu-btn { display: flex !important; }
+    .nav-cta { display: none !important; }
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s cubic-bezier(.4,0,.2,1), transform 0.65s cubic-bezier(.4,0,.2,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ── COUNTER ANIMATION ── */
+  @keyframes countUp {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── FOUNDER CARD ── */
+  .founder-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    transition: transform 0.25s;
+  }
+  .founder-card:hover { transform: translateY(-2px); }
+
+  .founder-avatar {
+    width: 72px; height: 72px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ── EMAIL FORM ── */
+  .email-form {
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+  }
+  .email-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--h);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .email-input::placeholder { color: var(--mono); }
+  .email-input:focus { border-color: var(--indigo); }
+
+  /* ── ANIMATED COUNTER ── */
+  .stat-counter { display: inline-block; }
+
+  /* ── SECTION DIVIDER ANIMATION ── */
+  @keyframes lineGrow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  .divider-line {
+    height: 1px;
+    background: var(--indigo);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(.4,0,.2,1);
+  }
+  .divider-line.visible { transform: scaleX(1); }
+</style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<header class="nav">
+  <div class="wrap h-full flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <a href="#" style="font-weight:800;font-size:18px;letter-spacing:-0.04em;color:var(--h);text-decoration:none;">
+        Porter<span style="color:var(--indigo)">.</span>
+      </a>
+      <nav class="nav-links-desktop hidden md:flex items-center gap-6">
+        <a href="#problem" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:var(--mono);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--h)'" onmouseout="this.style.color='var(--mono)'">Problem</a>
+        <a href="#journey" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:var(--mono);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--h)'" onmouseout="this.style.color='var(--mono)'">Journey</a>
+        <a href="#features" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:var(--mono);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--h)'" onmouseout="this.style.color='var(--mono)'">Features</a>
+        <a href="#founders" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:var(--mono);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--h)'" onmouseout="this.style.color='var(--mono)'">Team</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#" class="nav-signin btn-outline hidden md:inline-block">Sign in</a>
+      <a href="#email-capture" class="nav-cta btn-indigo">Join Waitlist</a>
+      <!-- Mobile hamburger -->
+      <button id="mob-menu-btn" onclick="toggleMobMenu()" style="display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;" aria-label="Menu">
+        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:14px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile nav drawer -->
+<div id="mob-menu">
+  <a href="#problem" onclick="toggleMobMenu()">Problem</a>
+  <a href="#journey" onclick="toggleMobMenu()">Journey</a>
+  <a href="#features" onclick="toggleMobMenu()">Features</a>
+  <a href="#founders" onclick="toggleMobMenu()">Team</a>
+  <a href="#email-capture" class="mob-cta" onclick="toggleMobMenu()">Join Waitlist →</a>
+</div>
+<section class="hero-section" style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;position:relative;overflow:hidden;">
+
+  <!-- Particle canvas: hero — full density -->
+  <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+  <div class="absolute inset-0 grid-bg" style="opacity:0.4;z-index:2;"></div>
+
+  <div class="wrap relative z-10" style="padding-top:80px;padding-bottom:80px;">
+    <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+
+      <!-- Left copy -->
+      <div>
+        <div class="anim animate-fadeUp" style="margin-bottom:28px;">
+          <span class="eyebrow" style="display:inline-flex;align-items:center;gap:8px;background:rgba(79,70,229,0.07);border:1px solid rgba(79,70,229,0.15);color:var(--indigo);padding:6px 14px;border-radius:99px;">
+            <span class="animate-pdot" style="display:inline-block;width:6px;height:6px;background:var(--indigo);border-radius:50%;"></span>
+            Agentic Commerce &nbsp;·&nbsp; Early Access
+          </span>
+        </div>
+
+        <h1 class="h1 anim animate-fadeUp1" style="margin-bottom:24px;">
+          Convert<br>
+          <span style="color:var(--indigo);">intent</span><br>
+          into sales.
+        </h1>
+
+        <p class="body-lg anim animate-fadeUp2" style="max-width:420px;margin-bottom:40px;">
+          Porter does real-time personalization in the agentic commerce era — bridging the gap between platform traffic and revenue.
+        </p>
+
+        <div class="anim animate-fadeUp3 hero-ctas" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:56px;">
+          <a href="#early-access" class="btn-indigo">Request Early Access →</a>
+          <a href="#journey" style="font-size:14px;font-weight:500;color:var(--mono);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .15s;" onmouseover="this.style.color='var(--h)'" onmouseout="this.style.color='var(--mono)'">
+            See how it works <span style="transition:transform .2s;">→</span>
+          </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="anim animate-fadeUp4 hero-stats" style="display:flex;gap:0;padding-top:36px;border-top:1px solid var(--border);">
+          <div class="hero-stat-item" style="padding-right:36px;margin-right:36px;border-right:1px solid var(--border);">
+            <div style="font-family:'Fira Code',mono;font-size:30px;font-weight:500;color:var(--h);letter-spacing:-0.03em;line-height:1;margin-bottom:5px;">[<span style="color:var(--indigo);">X</span>%]</div>
+            <div style="font-size:12px;color:var(--mono);">sessions end without purchase</div>
+          </div>
+          <div class="hero-stat-item" style="padding-right:36px;margin-right:36px;border-right:1px solid var(--border);">
+            <div style="font-family:'Fira Code',mono;font-size:30px;font-weight:500;color:var(--h);letter-spacing:-0.03em;line-height:1;margin-bottom:5px;">[<span style="color:var(--indigo);">X</span>%]</div>
+            <div style="font-size:12px;color:var(--mono);">avg. cart abandonment</div>
+          </div>
+          <div class="hero-stat-item">
+            <div style="font-family:'Fira Code',mono;font-size:30px;font-weight:500;color:var(--h);letter-spacing:-0.03em;line-height:1;margin-bottom:5px;">[<span style="color:var(--indigo);">X</span>×]</div>
+            <div style="font-size:12px;color:var(--mono);">revenue uplift from intent</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: hero UI (glassmorphism strictly here) -->
+      <div class="hero-right" style="position:relative;display:flex;justify-content:center;align-items:center;min-height:480px;">
+
+        <!-- Main glass card -->
+        <div class="glass-card animate-float" style="width:100%;max-width:400px;padding:24px;z-index:2;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--divider);">
+            <div>
+              <div class="eyebrow" style="margin-bottom:4px;">Intent Signal</div>
+              <div style="font-size:13px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">"lightweight running shoes under $120"</div>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:6px;font-family:'Fira Code',mono;font-size:11px;color:var(--indigo);background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.15);padding:4px 10px;border-radius:99px;">
+              <span class="animate-pdot" style="display:inline-block;width:5px;height:5px;background:var(--indigo);border-radius:50%;"></span>
+              Refining
+            </span>
+          </div>
+
+          <!-- Signal bars — animated -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="eyebrow" style="font-size:10px;width:110px;flex-shrink:0;">road_running</span>
+              <div class="bar-track" style="flex:1;"><div class="bar-fill sig-bar" data-min="78" data-max="96" style="width:92%;transition:width 1.2s ease;"></div></div>
+              <span class="sig-val" style="font-family:'Fira Code',mono;font-size:10px;color:var(--indigo);width:30px;text-align:right;">0.92</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="eyebrow" style="font-size:10px;width:110px;flex-shrink:0;">price_sensitive</span>
+              <div class="bar-track" style="flex:1;"><div class="bar-fill sig-bar" data-min="72" data-max="91" style="width:87%;transition:width 1.2s ease;"></div></div>
+              <span class="sig-val" style="font-family:'Fira Code',mono;font-size:10px;color:var(--indigo);width:30px;text-align:right;">0.87</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="eyebrow" style="font-size:10px;width:110px;flex-shrink:0;">lightweight</span>
+              <div class="bar-track" style="flex:1;"><div class="bar-fill sig-bar" data-min="88" data-max="98" style="width:95%;transition:width 1.2s ease;"></div></div>
+              <span class="sig-val" style="font-family:'Fira Code',mono;font-size:10px;color:var(--indigo);width:30px;text-align:right;">0.95</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="eyebrow" style="font-size:10px;width:110px;flex-shrink:0;">cushioning</span>
+              <div class="bar-track" style="flex:1;"><div class="bar-fill sig-bar" data-min="28" data-max="55" style="width:41%;background:rgba(15,23,42,0.15);transition:width 1.2s ease;"></div></div>
+              <span class="sig-val" style="font-family:'Fira Code',mono;font-size:10px;color:var(--mono);width:30px;text-align:right;">0.41</span>
+            </div>
+          </div>
+
+          <!-- Result chips -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div style="background:rgba(79,70,229,0.07);border:1px solid rgba(79,70,229,0.12);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-family:'Fira Code',mono;font-size:22px;font-weight:500;color:var(--indigo);line-height:1;margin-bottom:3px;">4</div>
+              <div style="font-size:11px;color:var(--mono);">matches</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-family:'Fira Code',mono;font-size:22px;font-weight:500;color:var(--h);line-height:1;margin-bottom:3px;">↑62%</div>
+              <div style="font-size:11px;color:var(--mono);">relevance</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-family:'Fira Code',mono;font-size:22px;font-weight:500;color:var(--h);line-height:1;margin-bottom:3px;">14ms</div>
+              <div style="font-size:11px;color:var(--mono);">latency</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating glass badge: outcome -->
+        <div class="glass-card animate-float2" style="position:absolute;bottom:-20px;left:-20px;padding:14px 16px;z-index:3;min-width:170px;">
+          <div class="eyebrow" style="margin-bottom:5px;">Journey outcome</div>
+          <div style="display:flex;align-items:center;gap:7px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--indigo);flex-shrink:0;"></span>
+            <span style="font-size:13px;font-weight:700;color:var(--h);letter-spacing:-0.02em;">Add to cart</span>
+          </div>
+          <div style="font-family:'Fira Code',mono;font-size:11px;color:var(--indigo);margin-top:3px;">↑ 38% conversion lift</div>
+        </div>
+
+        <!-- Floating glass badge: sponsored -->
+        <div class="glass-card animate-float3" style="position:absolute;top:-10px;right:-20px;padding:12px 14px;z-index:3;">
+          <div class="eyebrow" style="margin-bottom:3px;">Sponsored</div>
+          <div style="font-size:12px;font-weight:600;color:var(--h);">Aligned to intent</div>
+          <div style="font-family:'Fira Code',mono;font-size:11px;color:var(--indigo);">+2.4× CTR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TICKER ══════ -->
+<div class="ticker-section" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);padding:14px 0;overflow:hidden;">
+  <div style="display:flex;width:max-content;" class="animate-marquee">
+    <!-- set 1 -->
+    <div style="display:flex;align-items:center;gap:28px;padding:0 28px;">
+      <span class="eyebrow" style="white-space:nowrap;">E-Commerce Platforms</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Agentic Commerce</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Real-Time Personalization</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Intent Refinement</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Sponsored Alignment</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Discovery Intelligence</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Conversion Optimization</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Long-Tail Inventory</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Marketplaces</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Brands &amp; Advertisers</span><span style="color:var(--border);font-size:18px;">·</span>
+    </div>
+    <!-- set 2 duplicate -->
+    <div style="display:flex;align-items:center;gap:28px;padding:0 28px;">
+      <span class="eyebrow" style="white-space:nowrap;">E-Commerce Platforms</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Agentic Commerce</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Real-Time Personalization</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Intent Refinement</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Sponsored Alignment</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Discovery Intelligence</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Conversion Optimization</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Long-Tail Inventory</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Marketplaces</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Brands &amp; Advertisers</span><span style="color:var(--border);font-size:18px;">·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PROBLEM ══════ -->
+<section class="section" id="problem">
+  <div class="wrap">
+    <div style="max-width:560px;margin-bottom:56px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;">The Problem</div>
+      <h2 class="h2" style="margin-bottom:20px;">Traffic alone does not guarantee sales.</h2>
+      <p class="body-lg">Small inefficiencies in discovery create large, preventable revenue losses. With the emergence of AI, the gap between traffic and conversion is widening.</p>
+    </div>
+
+    <div class="problem-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div class="bento reveal reveal-delay-1" style="padding:24px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:#FEF2F2;border:1px solid rgba(220,38,38,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#DC2626" stroke-width="1.1"/><path d="M6.5 3.5v3.5M6.5 9v.5" stroke="#DC2626" stroke-width="1.1" stroke-linecap="round"/></svg>
+        </div>
+        <div class="label-sm" style="margin-bottom:7px;">Wrong product surfaced</div>
+        <div class="body-sm">Customers can't find what they're actually looking for.</div>
+      </div>
+      <div class="bento" style="padding:24px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:#FFF7ED;border:1px solid rgba(234,88,12,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 11L6.5 1.5 11.5 11H1.5z" stroke="#EA580C" stroke-width="1.1" stroke-linejoin="round"/><path d="M6.5 5.5v3M6.5 10v.3" stroke="#EA580C" stroke-width="1.1" stroke-linecap="round"/></svg>
+        </div>
+        <div class="label-sm" style="margin-bottom:7px;">Cart abandonment</div>
+        <div class="body-sm">Decision fatigue sets in before the right product is found.</div>
+      </div>
+      <div class="bento" style="padding:24px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:#FEFCE8;border:1px solid rgba(202,138,4,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" rx="1.2" stroke="#CA8A04" stroke-width="1.1"/><path d="M4 3V2a.8.8 0 01.8-.8h3.4a.8.8 0 01.8.8v1" stroke="#CA8A04" stroke-width="1.1"/><path d="M3.5 6.5h6M3.5 8.5h4" stroke="#CA8A04" stroke-width="1.1" stroke-linecap="round"/></svg>
+        </div>
+        <div class="label-sm" style="margin-bottom:7px;">Invisible inventory</div>
+        <div class="body-sm">Long-tail products never reach the customers most likely to buy.</div>
+      </div>
+      <div class="bento" style="padding:24px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 9.5l3.5-3.5 2.5 2.5L11.5 2" stroke="#94A3B8" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="label-sm" style="margin-bottom:7px;">Misaligned ads</div>
+        <div class="body-sm">Sponsored placements appear too early or too late to convert.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ JOURNEY ══════ -->
+<section style="background:#07070D;padding:100px 0;position:relative;overflow:hidden;" id="journey">
+
+  <!-- Dot grid -->
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;"></div>
+  <!-- Vignette -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(7,7,13,0.85) 100%);pointer-events:none;z-index:1;"></div>
+
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div class="journey-header section-header-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:64px;" class="reveal">
+      <div>
+        <div class="eyebrow" style="color:#6366F1;margin-bottom:16px;">The Customer Journey</div>
+        <h2 class="h2" style="color:#F8FAFC;">Same intent.<br>Two outcomes.</h2>
+      </div>
+      <p class="body-lg" style="color:#475569;">Porter actively refines customer intent as they move through the journey — turning near-misses into conversions.</p>
+    </div>
+
+    <div class="journey-canvas-wrap" style="position:relative;width:100%;height:340px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.015);">
+      <canvas id="journey-canvas" style="display:block;width:100%;height:100%;"></canvas>
+      <button onclick="replayJourney()" style="position:absolute;bottom:20px;right:20px;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;transition:color .15s,border-color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.7)';this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.color='rgba(255,255,255,0.3)';this.style.borderColor='rgba(255,255,255,0.08)'">↺ Replay</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ BENTO FEATURES ══════ -->
+<section class="section" id="features" style="position:relative;overflow:hidden;">
+  <canvas id="features-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.45;"></canvas>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div style="margin-bottom:56px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;">How Porter Works</div>
+      <h2 class="h2" style="max-width:480px;">Every stage of the discovery journey.</h2>
+    </div>
+
+    <!-- Bento grid: 12 cols -->
+    <div class="bento-grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:10px;" class="reveal reveal-delay-1">
+
+      <!-- Discovery — large -->
+      <div class="bento bento-discovery" style="grid-column:span 5;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="#4F46E5" stroke-width="1.2"/><path d="M10 10l2.5 2.5" stroke="#4F46E5" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:var(--indigo);margin-bottom:6px;">01</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Discovery</div>
+        <div class="body-sm" style="margin-bottom:20px;">Understanding what the customer actually wants — beyond the initial query, in real time.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">initial_query</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:28%;background:rgba(15,23,42,0.12);"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">intent_signal</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:82%;"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">refined_match</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:96%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refinement -->
+      <div class="bento bento-refinement" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#EFF6FF;border:1px solid rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M4 7h6M6 10h2" stroke="#3B82F6" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#3B82F6;margin-bottom:6px;">02</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Refinement</div>
+        <div class="body-sm">Helping customers narrow choices through live intent signals — no manual filtering required.</div>
+      </div>
+
+      <!-- Dark stat card -->
+      <div class="bento-dark bento-stat" style="grid-column:span 3;padding:28px;">
+        <div class="eyebrow" style="color:#475569;margin-bottom:20px;">Impact</div>
+        <div style="margin-bottom:18px;">
+          <div style="font-family:'Fira Code',mono;font-size:34px;font-weight:500;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:4px;">[<span style="color:#818CF8;">X</span>%]</div>
+          <div style="font-size:12px;color:#475569;">fewer abandoned carts</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:18px;"></div>
+        <div>
+          <div style="font-family:'Fira Code',mono;font-size:34px;font-weight:500;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:4px;">[<span style="color:#818CF8;">X</span>×]</div>
+          <div style="font-size:12px;color:#475569;">conversion rate uplift</div>
+        </div>
+      </div>
+
+      <!-- Alignment -->
+      <div class="bento bento-alignment" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#FFFBEB;border:1px solid rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#F59E0B;margin-bottom:6px;">03</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Alignment</div>
+        <div class="body-sm">Surfacing products and sponsored placements that match the evolving journey — at the right moment.</div>
+      </div>
+
+      <!-- Decision -->
+      <div class="bento bento-decision" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#F0FDF4;border:1px solid rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 8l4 4 6-7" stroke="#22C55E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#22C55E;margin-bottom:6px;">04</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Decision</div>
+        <div class="body-sm">Reducing friction and enabling faster, more confident purchase decisions — every session.</div>
+      </div>
+
+      <!-- Indigo wide card: inventory -->
+      <div class="bento-inventory" style="grid-column:span 4;background:var(--indigo);border-radius:8px;padding:28px;transition:transform .25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+        <div style="width:34px;height:34px;border-radius:6px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="5" height="5" rx="1" stroke="white" stroke-width="1.2"/><rect x="8" y="2" width="5" height="5" rx="1" stroke="white" stroke-width="1.2"/><rect x="1" y="9" width="5" height="3" rx="1" stroke="white" stroke-width="1.2"/><rect x="8" y="9" width="5" height="3" rx="1" stroke="white" stroke-width="1.2"/></svg>
+        </div>
+        <div style="font-family:'Fira Code',mono;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Inventory</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.03em;margin-bottom:8px;">Long-tail visibility</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6;">Products that never get discovered become visible to the customers most likely to buy them.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ PLATFORMS ══════ -->
+<section class="section platforms-section" style="background:#0F172A;" id="platforms">
+  <div class="wrap">
+    <div style="margin-bottom:52px;">
+      <div class="eyebrow" style="color:#475569;margin-bottom:16px;">Designed for</div>
+      <h2 class="h2" style="color:#F8FAFC;max-width:480px;">Built for modern commerce platforms.</h2>
+    </div>
+    <div class="platforms-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:32px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <div style="font-family:'Fira Code',mono;font-size:10px;color:#4F46E5;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">Primary</div>
+        <div style="font-size:20px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:20px;line-height:1.2;">E-Commerce Platforms & Marketplaces</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Improve product matching at scale</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Reduce abandoned customer journeys</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Increase conversion rates across catalogue</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Improve sponsored placement performance</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:32px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <div style="font-family:'Fira Code',mono;font-size:10px;color:#4F46E5;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">Secondary Beneficiaries</div>
+        <div style="font-size:20px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:20px;line-height:1.2;">Brands & Advertisers</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Improved product visibility in discovery</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Better sponsored placement alignment</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Higher probability of conversion per impression</li>
+          <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:7px;"></span>Reach customers at the moment of real intent</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ EARLY ACCESS ══════ -->
+<section class="section" style="background:var(--surface);" id="early-access">
+  <div class="wrap">
+    <div class="early-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div>
+        <div class="eyebrow" style="margin-bottom:16px;">Early Adoption Programme</div>
+        <h2 class="h2" style="margin-bottom:20px;">Be first to convert intent into sales.</h2>
+        <p class="body-lg" style="margin-bottom:32px;">We are inviting e-commerce platforms to integrate Porter on real customer journeys before general availability.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Integrate Porter into your platform
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Test on real customer journeys
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Evaluate impact on discovery and conversion
+          </div>
+        </div>
+        <a href="mailto:hello@porter.com" class="btn-indigo">Request Early Access →</a>
+      </div>
+
+      <!-- Right CTA panel -->
+      <div class="early-cta-panel" style="background:#4F46E5;border-radius:8px;padding:44px;position:relative;overflow:hidden;">
+        <div style="position:relative;z-index:1;">
+          <div style="font-family:'Fira Code',mono;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">This is an opportunity to</div>
+          <h3 style="font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1.15;margin-bottom:14px;">Explore the next generation of product discovery.</h3>
+          <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.65;margin-bottom:28px;">Platforms that help customers reach the right product faster will capture more value from their traffic.</p>
+          <a href="mailto:hello@porter.com" style="display:inline-block;background:#fff;color:#4F46E5;font-weight:700;font-size:14px;padding:11px 22px;border-radius:8px;text-decoration:none;transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">Get in touch →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOUNDERS ══════ -->
+<section class="section" style="background:var(--bg);" id="founders">
+  <div class="wrap">
+    <div style="max-width:560px;margin-bottom:56px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;">The Team</div>
+      <h2 class="h2" style="margin-bottom:16px;">Built by people who understand commerce.</h2>
+      <p class="body-lg">Porter is founded by operators with deep experience across advertising, AI, and e-commerce — not researchers building in a vacuum.</p>
+    </div>
+
+    <div class="founders-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <!-- Founder 1: CEO -->
+      <div class="founder-card reveal reveal-delay-1">
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+          <div class="founder-avatar">
+            <!-- Replace with actual photo: <img src="..." style="width:100%;height:100%;object-fit:cover;"> -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="10" r="5" stroke="rgba(15,23,42,0.2)" stroke-width="1.2"/>
+              <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="rgba(15,23,42,0.2)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:var(--h);letter-spacing:-0.03em;margin-bottom:3px;">[ Founder Name ]</div>
+            <div class="eyebrow" style="color:var(--indigo);">Co-Founder & CEO</div>
+          </div>
+        </div>
+        <p class="body-sm" style="margin-bottom:20px;">Serial entrepreneur with 15+ years across advertising technology, e-commerce, and B2B SaaS. Previously founded and scaled two venture-backed companies. Deep operator experience on both the platform and brand side of commerce.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">15+ yrs experience</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">Ad Tech</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">E-Commerce</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">Serial Founder</span>
+        </div>
+      </div>
+
+      <!-- Founder 2: CTO -->
+      <div class="founder-card reveal reveal-delay-2">
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+          <div class="founder-avatar">
+            <!-- Replace with actual photo: <img src="..." style="width:100%;height:100%;object-fit:cover;"> -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="10" r="5" stroke="rgba(15,23,42,0.2)" stroke-width="1.2"/>
+              <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="rgba(15,23,42,0.2)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:var(--h);letter-spacing:-0.03em;margin-bottom:3px;">[ Founder Name ]</div>
+            <div class="eyebrow" style="color:var(--indigo);">Co-Founder & CTO</div>
+          </div>
+        </div>
+        <p class="body-sm" style="margin-bottom:20px;">PhD in Artificial Intelligence with 10+ years building production-grade ML systems. Previously co-founded a deep tech startup acquired by a publicly traded company. Specialist in real-time recommendation systems and large-scale intent modeling.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">PhD · AI</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">10+ yrs ML</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">Previous Exit</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:4px;">Intent Modeling</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ EMAIL CAPTURE ══════ -->
+<section class="section" style="background:#0F172A;position:relative;overflow:hidden;" id="email-capture">
+  <canvas id="radial-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6;"></canvas>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div class="email-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div class="reveal">
+        <div class="eyebrow" style="color:#475569;margin-bottom:16px;">Early Tester Programme</div>
+        <h2 class="h2" style="color:#F8FAFC;margin-bottom:16px;">Join the waitlist.</h2>
+        <p style="font-size:17px;line-height:1.65;color:#475569;letter-spacing:-0.01em;margin-bottom:8px;">
+          We are selectively onboarding e-commerce platforms and retailers for early access.
+        </p>
+        <p style="font-size:14px;color:#334155;letter-spacing:-0.01em;">For retailers and e-commerce platforms only.</p>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <div class="email-form-panel" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:36px;">
+          <div style="font-family:'Fira Code',monospace;font-size:10px;color:#4F46E5;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;">Leave your details</div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+            <input
+              type="text"
+              placeholder="Your name"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+            <input
+              type="email"
+              placeholder="Work email address"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+            <input
+              type="text"
+              placeholder="Platform / company name"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+          </div>
+
+          <button
+            onclick="handleSubmit(this)"
+            class="btn-indigo"
+            style="width:100%;justify-content:center;text-align:center;cursor:pointer;border:none;">
+            Request Early Access →
+          </button>
+
+          <p style="font-size:12px;color:#334155;margin-top:14px;letter-spacing:-0.01em;font-family:'Fira Code',monospace;">
+            For retailers and e-commerce platforms only. We review every application.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CLOSING ══════ -->
+<section class="closing-section" style="background:var(--bg);border-top:1px solid var(--border);padding:72px 0;text-align:center;">
+  <div class="wrap">
+    <h2 class="h2 closing-h2" style="margin-bottom:12px;max-width:560px;margin-left:auto;margin-right:auto;">Traffic alone does not create revenue.</h2>
+    <p class="body-lg" style="max-width:440px;margin:0 auto 32px;">Revenue comes from matching customer intent with the right product at the right moment.</p>
+    <a href="#email-capture" class="btn-indigo">Join the waitlist</a>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer style="background:#0F172A;border-top:1px solid rgba(255,255,255,0.04);padding:24px 0;">
+  <div class="wrap footer-inner" style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-weight:800;font-size:17px;letter-spacing:-0.04em;color:rgba(255,255,255,0.4);">Porter<span style="color:#4F46E5;">.</span></div>
+    <p style="font-family:'Fira Code',mono;font-size:11px;color:rgba(255,255,255,0.2);">© 2025 Porter. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // ══════ MOBILE MENU ══════
+  function toggleMobMenu() {
+    const menu = document.getElementById('mob-menu');
+    menu.classList.toggle('open');
+  }
+
+  // Close menu on outside click
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mob-menu');
+    const btn   = document.getElementById('mob-menu-btn');
+    if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+
+  // ══════ 1. PARTICLE CANVAS — HERO (full density) ══════
+  (function() {
+    const canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes = [], RAF;
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+
+    function initNodes(count) {
+      nodes = [];
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: Math.random() * 1.8 + 0.6,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const LINK = 130;
+
+      // Draw connections
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < LINK) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(79,70,229,${0.12 * (1 - d/LINK)})`;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(79,70,229,0.35)';
+        ctx.fill();
+
+        // Move
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      });
+
+      RAF = requestAnimationFrame(draw);
+    }
+
+    resize();
+    initNodes(55);
+    draw();
+    window.addEventListener('resize', () => {
+      resize();
+      initNodes(55);
+    });
+  })();
+
+  // ══════ 2. PARTICLE CANVAS — FEATURES (sparse) ══════
+  (function() {
+    const canvas = document.getElementById('features-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes = [];
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+
+    function initNodes(count) {
+      nodes = [];
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.18,
+          vy: (Math.random() - 0.5) * 0.18,
+          r: Math.random() * 1.2 + 0.4,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const LINK = 100;
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < LINK) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(79,70,229,${0.07 * (1 - d/LINK)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(79,70,229,0.18)';
+        ctx.fill();
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initNodes(28);
+    draw();
+    window.addEventListener('resize', () => { resize(); initNodes(28); });
+  })();
+
+  // ══════ 3. RADIAL BURST — EMAIL CAPTURE (dark) ══════
+  (function() {
+    const canvas = document.getElementById('radial-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, lines = [];
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      initLines();
+    }
+
+    function initLines() {
+      lines = [];
+      const COUNT = 60;
+      for (let i = 0; i < COUNT; i++) {
+        const angle = (i / COUNT) * Math.PI * 2;
+        const len   = 120 + Math.random() * 180;
+        lines.push({
+          angle,
+          len,
+          progress: Math.random(),
+          speed: 0.0015 + Math.random() * 0.002,
+          dot: Math.random() > 0.4,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const cx = W * 0.72;
+      const cy = H * 0.5;
+
+      lines.forEach(l => {
+        l.progress += l.speed;
+        if (l.progress > 1.4) l.progress = 0;
+
+        const p = Math.min(l.progress, 1);
+        const endX = cx + Math.cos(l.angle) * l.len * p;
+        const endY = cy + Math.sin(l.angle) * l.len * p;
+        const fade = l.progress > 1 ? 1 - (l.progress - 1) / 0.4 : 1;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = `rgba(129,140,248,${0.18 * fade})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        if (l.dot && p > 0.9) {
+          ctx.beginPath();
+          ctx.arc(endX, endY, 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(129,140,248,${0.55 * fade})`;
+          ctx.fill();
+        }
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+  })();
+
+  // ══════ 4. ANIMATED SIGNAL BARS ══════
+  (function() {
+    const bars = document.querySelectorAll('.sig-bar');
+    const vals = document.querySelectorAll('.sig-val');
+    if (!bars.length) return;
+
+    function pulse() {
+      bars.forEach((bar, i) => {
+        const min = parseFloat(bar.dataset.min);
+        const max = parseFloat(bar.dataset.max);
+        const val = min + Math.random() * (max - min);
+        const pct = val.toFixed(0);
+        bar.style.width = pct + '%';
+        if (vals[i]) {
+          const isLow = i === 3;
+          vals[i].textContent = (val / 100).toFixed(2);
+          vals[i].style.color = isLow ? 'var(--mono)' : 'var(--indigo)';
+          bar.style.background = isLow ? 'rgba(15,23,42,0.15)' : 'var(--indigo)';
+        }
+      });
+    }
+
+    setInterval(pulse, 2200);
+  })();
+
+  // ══════ 5. CINEMATIC JOURNEY CANVAS ══════
+  (function() {
+    const canvas = document.getElementById('journey-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, raf, N = {}, jState = {}, phaseFrame = 0;
+
+    const DUR = { P0:45, P1:12, P2:45, P3:12, P4:30, P5:35, P6:50, P7:25, P8:9999 };
+    const PKEYS = Object.keys(DUR);
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      W = canvas.width  = rect.width;
+      H = canvas.height = rect.height;
+      const yMid=H*.5, yA=H*.27, yB=H*.73;
+      const x0=W*.10, x1=W*.32, x2=W*.54, x3=W*.72, x4=W*.90;
+      N = {
+        search:    {x:x0,y:yMid,label:'Search',    sub:'initial query'},
+        intent:    {x:x1,y:yMid,label:'Intent',    sub:'signal detected'},
+        results:   {x:x2,y:yMid,label:'Results',   sub:'processing'},
+        porter:    {x:x3,y:yMid,label:'Porter',    sub:'intercepting'},
+        abandoned: {x:x4,y:yA,  label:'Abandoned', sub:'lost sale'},
+        converted: {x:x4,y:yB,  label:'Converted', sub:'purchase ✓'},
+      };
+    }
+
+    function resetJ() {
+      phaseFrame = 0;
+      jState = { phase:0, p1:0, p2:0, badP:0, goodP:0, iGlow:0, cGlow:0, badFade:1, loopT:0 };
+    }
+
+    function eio(t) { return t<.5?2*t*t:-1+(4-2*t)*t; }
+
+    function glow(c,b){ ctx.shadowColor=c; ctx.shadowBlur=b; }
+    function ng(){ ctx.shadowColor='transparent'; ctx.shadowBlur=0; }
+
+    function drawLine(x1,y1,x2,y2,p,col,lw,bl) {
+      if(p<=0) return;
+      p=Math.min(p,1);
+      ctx.save(); ctx.beginPath();
+      ctx.moveTo(x1,y1); ctx.lineTo(x1+(x2-x1)*p, y1+(y2-y1)*p);
+      ctx.strokeStyle=col; ctx.lineWidth=lw; glow(col,bl); ctx.stroke(); ng(); ctx.restore();
+    }
+
+    function drawCurve(x1,y1,cpx,cpy,x2,y2,p,col,lw,bl,dash) {
+      if(p<=0) return; p=Math.min(p,1);
+      ctx.save(); if(dash) ctx.setLineDash([6,6]);
+      ctx.beginPath();
+      const steps=60, end=Math.floor(p*steps);
+      ctx.moveTo(x1,y1);
+      for(let i=1;i<=end;i++){
+        const t=i/steps;
+        ctx.lineTo((1-t)*(1-t)*x1+2*(1-t)*t*cpx+t*t*x2, (1-t)*(1-t)*y1+2*(1-t)*t*cpy+t*t*y2);
+      }
+      ctx.strokeStyle=col; ctx.lineWidth=lw; glow(col,bl); ctx.stroke();
+      ng(); ctx.setLineDash([]); ctx.restore();
+    }
+
+    function bezPt(x1,y1,cpx,cpy,x2,y2,t) {
+      return { x:(1-t)*(1-t)*x1+2*(1-t)*t*cpx+t*t*x2, y:(1-t)*(1-t)*y1+2*(1-t)*t*cpy+t*t*y2 };
+    }
+
+    function drawNode(n, type, gl) {
+      const r = type==='porter'?28:22;
+      if(gl>0){
+        const col = type==='porter'?'rgba(0,229,255,': type==='bad'?'rgba(239,68,68,': type==='good'?'rgba(0,229,255,':'rgba(99,102,241,';
+        ctx.save(); ctx.beginPath(); ctx.arc(n.x,n.y,r+8,0,Math.PI*2);
+        ctx.strokeStyle=col+(0.35*gl)+')'; ctx.lineWidth=1.5; glow(col+'1)',20*gl); ctx.stroke(); ng(); ctx.restore();
+      }
+      ctx.save(); ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
+      ctx.fillStyle = type==='porter'?'rgba(0,229,255,0.08)': type==='bad'?'rgba(239,68,68,0.08)': type==='good'?'rgba(0,229,255,0.12)':'rgba(255,255,255,0.04)';
+      if(type==='porter') glow('#00E5FF',18*(gl||.3));
+      ctx.fill(); ng();
+      ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
+      ctx.strokeStyle = type==='porter'?`rgba(0,229,255,${.4+.6*(gl||.3)})`: type==='bad'?`rgba(239,68,68,${.3+.5*(gl||0)})`: type==='good'?`rgba(0,229,255,${.5+.5*(gl||0)})`: 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = (type==='porter'||type==='good')?1.5:1;
+      if(type==='porter') glow('#00E5FF',12);
+      if(type==='good') glow('#00E5FF',10*(gl||0));
+      ctx.stroke(); ng();
+      ctx.beginPath(); ctx.arc(n.x,n.y,type==='porter'?5:3.5,0,Math.PI*2);
+      ctx.fillStyle = type==='porter'?'#00E5FF': type==='bad'?'#EF4444': type==='good'?'#00E5FF':'rgba(255,255,255,0.4)';
+      if(type==='porter') glow('#00E5FF',10);
+      if(type==='bad' && gl>0) glow('#EF4444',8*gl);
+      if(type==='good' && gl>0) glow('#00E5FF',12*gl);
+      ctx.fill(); ng(); ctx.restore();
+      ctx.save(); ctx.textAlign='center'; ctx.font=`600 12px 'Plus Jakarta Sans',sans-serif`;
+      const la = type==='bad'?.4: type==='good'?Math.min(1,.5+(gl||0)):.7;
+      ctx.fillStyle = type==='porter'?'rgba(0,229,255,0.9)': type==='bad'?`rgba(239,68,68,0.7)`: type==='good'?`rgba(0,229,255,${Math.min(1,.5+(gl||0))})`: `rgba(248,250,252,${la})`;
+      ctx.fillText(n.label, n.x, n.y+r+18);
+      ctx.font=`400 10px 'Fira Code',monospace`;
+      ctx.fillStyle = type==='porter'?'rgba(0,229,255,0.5)': type==='bad'?'rgba(239,68,68,0.4)': type==='good'?`rgba(0,229,255,${.4*(gl||0)})`:'rgba(100,116,139,0.8)';
+      ctx.fillText(n.sub, n.x, n.y+r+32); ctx.restore();
+    }
+
+    function drawPacket(x,y,col,bl) {
+      ctx.save(); ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+      ctx.fillStyle=col; glow(col,bl); ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2);
+      ctx.fillStyle=col.replace('FF','44'); ctx.fill();
+      ng(); ctx.restore();
+    }
+
+    function tick() {
+      ctx.clearRect(0,0,W,H);
+      const s=jState, ph=s.phase;
+      const dur = DUR[PKEYS[Math.min(ph, PKEYS.length-1)]];
+      const ep = eio(Math.min(phaseFrame/Math.max(1,dur),1));
+
+      if(ph===0) s.p1=ep;
+      else if(ph===1) s.p1=1;
+      else if(ph===2){ s.p1=1; s.p2=ep; }
+      else if(ph===3){ s.p2=1; s.iGlow=Math.min(s.iGlow+.04,.6); }
+      else if(ph===4){ s.badP=ep; s.iGlow=.6; }
+      else if(ph===5){ s.iGlow=.6+ep*.4; s.badFade=1-ep*.7; s.badP=1; }
+      else if(ph===6){ s.iGlow=1; s.goodP=ep; s.badFade=.3; }
+      else if(ph===7){ s.goodP=1; s.cGlow=ep; }
+      else if(ph===8){ s.goodP=1; s.cGlow=1; s.loopT=(s.loopT+.008)%1; }
+
+      phaseFrame++;
+      if(ph<8 && phaseFrame>=dur){ s.phase++; phaseFrame=0; }
+
+      // Auto-loop: restart full sequence after loop phase runs a full cycle
+      if(ph===8 && s.loopT < .01 && phaseFrame > 130) {
+        setTimeout(() => replayJourney(), 800);
+        return;
+      }
+
+      const bcpx=(N.porter.x+N.abandoned.x)/2, bcpy=N.abandoned.y-20;
+      const gcpx=(N.porter.x+N.converted.x)/2, gcpy=N.converted.y+20;
+      const seg2a=(N.results.x-N.intent.x)/((N.results.x-N.intent.x)+(N.porter.x-N.results.x));
+
+      // Ghost guides
+      drawLine(N.search.x,N.search.y,N.intent.x,N.intent.y,1,'rgba(255,255,255,0.04)',1,0);
+      drawLine(N.intent.x,N.intent.y,N.results.x,N.results.y,1,'rgba(255,255,255,0.04)',1,0);
+      drawLine(N.results.x,N.results.y,N.porter.x,N.porter.y,1,'rgba(255,255,255,0.04)',1,0);
+
+      // Path 1
+      drawLine(N.search.x,N.search.y,N.intent.x,N.intent.y,s.p1,'rgba(99,102,241,0.7)',1.5,8);
+
+      // Path 2 (two segments)
+      if(s.p2>0){
+        const p2a=Math.min(s.p2/seg2a,1);
+        drawLine(N.intent.x,N.intent.y,N.results.x,N.results.y,p2a,'rgba(99,102,241,0.7)',1.5,8);
+        if(s.p2>seg2a){
+          const p2b=(s.p2-seg2a)/(1-seg2a);
+          drawLine(N.results.x,N.results.y,N.porter.x,N.porter.y,p2b,'rgba(99,102,241,0.7)',1.5,8);
+        }
+      }
+
+      // Bad path
+      if(s.badP>0){ ctx.save(); ctx.globalAlpha=s.badFade; drawCurve(N.porter.x,N.porter.y,bcpx,bcpy,N.abandoned.x,N.abandoned.y,s.badP,'#EF4444',1,6,true); ctx.restore(); }
+
+      // Good path
+      if(s.goodP>0) drawCurve(N.porter.x,N.porter.y,gcpx,gcpy,N.converted.x,N.converted.y,s.goodP,'#00E5FF',2,16,false);
+
+      // Packet on good path loop
+      if(ph===8){ const pt=bezPt(N.porter.x,N.porter.y,gcpx,gcpy,N.converted.x,N.converted.y,s.loopT); drawPacket(pt.x,pt.y,'#00E5FF',20); }
+      else if(ph>=2&&ph<=4&&s.p2>0&&s.p2<1){
+        const ov=s.p2;
+        let px,py;
+        if(ov<=seg2a){ const t=ov/seg2a; px=N.intent.x+(N.results.x-N.intent.x)*t; py=N.intent.y; }
+        else { const t=(ov-seg2a)/(1-seg2a); px=N.results.x+(N.porter.x-N.results.x)*t; py=N.results.y; }
+        drawPacket(px,py,'#818CF8',14);
+      }
+
+      // Nodes
+      drawNode(N.search,   'normal', ph>=1?.5:0);
+      drawNode(N.intent,   'normal', ph>=2?.5:0);
+      drawNode(N.results,  'normal', ph>=3?.5:0);
+      drawNode(N.porter,   'porter', s.iGlow);
+      drawNode(N.abandoned,'bad',    s.badFade*(s.badP>.95?1:0));
+      drawNode(N.converted,'good',   s.cGlow);
+
+      raf = requestAnimationFrame(tick);
+    }
+
+    window.replayJourney = function() {
+      cancelAnimationFrame(raf);
+      resetJ();
+      tick();
+    };
+
+    // Trigger on scroll into view
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){ replayJourney(); obs.disconnect(); } });
+    }, { threshold: 0.3 });
+    obs.observe(canvas);
+
+    resize();
+    resetJ();
+    window.addEventListener('resize', () => { resize(); });
+  })();
+
+  // ══════ 6. SCROLL REVEAL ══════
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ══════ 7. BENTO MOUSE TRACKING ══════
+  document.querySelectorAll('.bento').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+
+  // ══════ 8. EMAIL FORM ══════
+  function handleSubmit(btn) {
+    const inputs = btn.closest('div').querySelectorAll('input');
+    const name    = inputs[0].value.trim();
+    const email   = inputs[1].value.trim();
+    const company = inputs[2].value.trim();
+
+    if (!name || !email || !company) {
+      inputs.forEach(i => {
+        if (!i.value.trim()) {
+          i.style.borderColor = 'rgba(220,38,38,0.5)';
+          setTimeout(() => i.style.borderColor = '', 2000);
+        }
+      });
+      return;
+    }
+
+    btn.textContent = '✓ Request received';
+    btn.style.background = '#16a34a';
+    btn.style.pointerEvents = 'none';
+    inputs.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; });
+  }
+
+  document.querySelectorAll('.email-input').forEach(input => {
+    input.addEventListener('focus', () => { input.style.borderColor = 'rgba(79,70,229,0.5)'; });
+    input.addEventListener('blur',  () => { input.style.borderColor = 'rgba(255,255,255,0.08)'; });
+  });
+</script>
+</body>
+</html>
