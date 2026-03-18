@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porter — Convert Intent into Sales</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Plus Jakarta Sans', 'sans-serif'],
+          mono: ['Fira Code', 'monospace'],
+        },
+        animation: {
+          'mesh-1': 'mesh1 14s ease-in-out infinite alternate',
+          'mesh-2': 'mesh2 18s ease-in-out infinite alternate',
+          'mesh-3': 'mesh3 22s ease-in-out infinite alternate',
+          'fadeUp':  'fadeUp 0.65s ease both',
+          'fadeUp1': 'fadeUp 0.65s 0.1s ease both',
+          'fadeUp2': 'fadeUp 0.65s 0.22s ease both',
+          'fadeUp3': 'fadeUp 0.65s 0.34s ease both',
+          'fadeUp4': 'fadeUp 0.65s 0.46s ease both',
+          'float':   'floatY 7s ease-in-out infinite',
+          'float2':  'floatY 9s ease-in-out infinite 1.8s',
+          'float3':  'floatY 8s ease-in-out infinite 0.9s',
+          'marquee': 'marquee 32s linear infinite',
+          'pdot':    'pulseDot 2s ease-in-out infinite',
+        },
+        keyframes: {
+          mesh1:    { '0%': {transform:'translate(0,0) scale(1)'},    '100%': {transform:'translate(7%,-9%) scale(1.12)'} },
+          mesh2:    { '0%': {transform:'translate(0,0) scale(1.06)'}, '100%': {transform:'translate(-9%,7%) scale(1)'} },
+          mesh3:    { '0%': {transform:'translate(0,0) scale(1)'},    '100%': {transform:'translate(5%,10%) scale(1.08)'} },
+          fadeUp:   { from:{opacity:'0',transform:'translateY(18px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+          floatY:   { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-10px)'} },
+          marquee:  { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-50%)'} },
+          pulseDot: { '0%,100%':{opacity:'1',transform:'scale(1)'}, '50%':{opacity:'0.4',transform:'scale(0.8)'} },
+        },
+      }
+    }
+  }
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; box-sizing: border-box; }
+
+  /* ── COLOR TOKENS ── */
+  :root {
+    --bg:          #FAF9F6;
+    --surface:     #FFFFFF;
+    --glass:       rgba(255,255,255,0.60);
+    --h:           #0F172A;
+    --body:        #475569;
+    --mono:        #64748B;
+    --border:      rgba(15,23,42,0.08);
+    --divider:     rgba(15,23,42,0.04);
+    --indigo:      #0077B6;
+    --indigo-dark: #005F92;
+  }
+
+  body { background: var(--bg); color: var(--body); font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top:0; left:0; right:0; z-index:50; height:60px;
+    background: rgba(8,12,20,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  /* ── MESH BLOBS ── */
+  .blob {
+    position: absolute; border-radius:50%;
+    filter: blur(90px); pointer-events:none;
+  }
+
+  /* ── GLASS CARDS (hero only) ── */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.75);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  /* ── BENTO CARD ── */
+  .bento {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    position: relative; overflow: hidden;
+  }
+  .bento::before {
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(0,119,182,0.05), transparent 40%);
+    opacity:0; transition: opacity 0.3s;
+  }
+  .bento:hover::before { opacity:1; }
+  .bento:hover { transform: translateY(-2px); box-shadow: none; }
+  .bento > * { position: relative; z-index:1; }
+
+  /* ── DARK BENTO ── */
+  .bento-dark {
+    background: #0F172A;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    transition: transform 0.25s;
+  }
+  .bento-dark:hover { transform: translateY(-2px); box-shadow: none; }
+
+  /* ── CTA BUTTONS ── */
+  .btn-indigo {
+    background: var(--indigo); color:#fff;
+    font-weight:600; font-size:14px;
+    padding: 11px 22px; border-radius:8px;
+    transition: background 0.15s, transform 0.15s;
+    display: inline-block; text-decoration:none;
+  }
+  .btn-indigo:hover {
+    background: var(--indigo-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    color: var(--h); font-weight:500; font-size:14px;
+    padding: 11px 22px; border-radius:8px;
+    border: 1px solid var(--border);
+    transition: border-color 0.15s, color 0.15s;
+    display: inline-block; text-decoration:none;
+    background: var(--surface);
+  }
+  .btn-outline:hover { border-color: rgba(15,23,42,0.2); color: var(--indigo); }
+
+  /* ── EYEBROW ── */
+  .eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mono);
+  }
+
+  /* ── HEADINGS ── */
+  .h1 {
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 800; line-height: 0.95;
+    letter-spacing: -0.04em; color: var(--h);
+  }
+  .h2 {
+    font-size: clamp(34px, 4vw, 52px);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.04em; color: var(--h);
+  }
+  .body-lg { font-size:17px; line-height:1.65; color:var(--body); letter-spacing:-0.01em; }
+  .body-sm { font-size:14px; line-height:1.65; color:var(--body); }
+  .label-sm { font-size:12px; font-weight:600; letter-spacing:-0.01em; color:var(--h); }
+
+  /* ── PROGRESS BAR ── */
+  .bar-track { height:4px; background:rgba(15,23,42,0.06); border-radius:99px; overflow:hidden; }
+  .bar-fill  { height:100%; background:var(--indigo); border-radius:99px; }
+
+  /* ── JOURNEY ROWS ── */
+  .jrow { border-bottom: 1px solid var(--divider); padding: 14px 20px; display:flex; gap:12px; }
+  .jrow:last-child { border-bottom: none; }
+  .jrow:hover { background: rgba(15,23,42,0.015); }
+
+  .step-num-bad  { width:22px;height:22px;border-radius:50%;background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+  .step-num-good { width:22px;height:22px;border-radius:50%;background:rgba(0,119,182,0.1);color:var(--indigo);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+
+  .badge-bad  { display:inline-block;font-family:'Fira Code',mono;font-size:10px;background:#FEF2F2;color:#DC2626;border:1px solid rgba(220,38,38,0.12);padding:2px 7px;border-radius:5px;margin-top:5px; }
+  .badge-good { display:inline-block;font-family:'Fira Code',mono;font-size:10px;background:rgba(0,119,182,0.07);color:var(--indigo);border:1px solid rgba(0,119,182,0.12);padding:2px 7px;border-radius:5px;margin-top:5px; }
+
+  /* ── TICKER ── */
+  .ticker-outer { overflow:hidden; }
+  .ticker-inner { display:flex; width:max-content; }
+
+  /* ── GRID BG ── */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(15,23,42,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,23,42,0.028) 1px, transparent 1px);
+    background-size: 52px 52px;
+  }
+
+  /* ── SECTION ── */
+  .section { padding: 100px 0; border-bottom: 1px solid var(--border); }
+  .wrap    { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — TABLET (max 1024px)
+  ══════════════════════════════════════ */
+  @media(max-width:1024px) {
+    .wrap { padding: 0 32px; }
+
+    /* Hero: stack on tablet */
+    .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+    .hero-right { display: none !important; }
+
+    /* Problem 4-col → 2-col */
+    .problem-grid { grid-template-columns: repeat(2,1fr) !important; }
+
+    /* Bento 12-col → simplified */
+    .bento-discovery { grid-column: span 6 !important; }
+    .bento-refinement { grid-column: span 6 !important; }
+    .bento-stat { grid-column: span 12 !important; }
+    .bento-alignment { grid-column: span 4 !important; }
+    .bento-decision { grid-column: span 4 !important; }
+    .bento-inventory { grid-column: span 4 !important; }
+
+    /* Founders 2-col → 1-col */
+    .founders-grid { grid-template-columns: 1fr !important; }
+
+    /* Early access 2-col → 1-col */
+    .early-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+    /* Email capture 2-col → 1-col */
+    .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+    /* Platforms 2-col → 1-col */
+    .platforms-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — MOBILE (max 768px)
+  ══════════════════════════════════════ */
+  @media(max-width:768px) {
+    .wrap { padding: 0 20px; }
+    .section { padding: 64px 0; }
+
+    /* ── NAV ── */
+    .nav-links-desktop { display: none !important; }
+    .nav-signin { display: none !important; }
+    .nav-cta { font-size: 13px !important; padding: 8px 16px !important; }
+
+    /* ── HERO ── */
+    .hero-section { padding-top: 72px !important; min-height: auto !important; padding-bottom: 64px !important; }
+    .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .hero-right { display: none !important; }
+    .hero-eyebrow { font-size: 10px !important; }
+    .h1 { font-size: clamp(40px,11vw,60px) !important; }
+    .hero-sub { font-size: 15px !important; max-width: 100% !important; }
+    .hero-ctas { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    .btn-indigo { width: 100% !important; text-align: center !important; }
+    .hero-stats { flex-direction: column !important; gap: 20px !important; padding-top: 28px !important; }
+    .hero-stat-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; padding-bottom: 20px !important; border-bottom: 1px solid var(--border) !important; }
+    .hero-stat-item:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
+
+    /* ── PROBLEM ── */
+    .problem-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+    /* ── JOURNEY (dark section) ── */
+    .journey-header { grid-template-columns: 1fr !important; gap: 20px !important; margin-bottom: 36px !important; }
+    .journey-canvas-wrap { height: 260px !important; }
+
+    /* ── BENTO FEATURES ── */
+    .bento-grid { grid-template-columns: 1fr !important; }
+    .bento-grid > * { grid-column: span 1 !important; }
+
+    /* ── PLATFORMS ── */
+    .platforms-grid { grid-template-columns: repeat(2,1fr) !important; gap: 12px !important; }
+    .platforms-section { padding: 64px 0 !important; }
+
+    /* ── EARLY ACCESS ── */
+    .early-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+    .early-cta-panel { padding: 32px !important; }
+
+    /* ── FOUNDERS ── */
+    .founders-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+
+    /* ── EMAIL CAPTURE ── */
+    .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .email-form-panel { padding: 28px !important; }
+
+    /* ── JOURNEY SECTION header ── */
+    .journey-section-pad { padding: 64px 0 !important; }
+
+    /* ── TYPOGRAPHY ── */
+    .h2 { font-size: clamp(28px,8vw,40px) !important; }
+    .body-lg { font-size: 15px !important; }
+    .section-header-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 36px !important; }
+
+    /* ── CLOSING ── */
+    .closing-section { padding: 56px 0 !important; }
+    .closing-h2 { font-size: clamp(22px,7vw,32px) !important; }
+
+    /* ── FOOTER ── */
+    .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+
+    /* ── TICKER ── */
+    .ticker-section { padding: 12px 0 !important; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — SMALL MOBILE (max 480px)
+  ══════════════════════════════════════ */
+  @media(max-width:480px) {
+    .wrap { padding: 0 16px; }
+    .h1 { font-size: clamp(36px, 10vw, 48px) !important; }
+    .journey-canvas-wrap { height: 220px !important; }
+    .btn-indigo { font-size: 13px !important; padding: 10px 18px !important; }
+  }
+
+  /* ── MOBILE MENU ── */
+  #mob-menu {
+    display: none;
+    position: fixed;
+    top: 60px; left: 0; right: 0;
+    background: rgba(250,249,246,0.98);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 20px;
+    z-index: 49;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #mob-menu.open { display: flex; }
+  #mob-menu a {
+    display: block;
+    padding: 12px 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--body);
+    text-decoration: none;
+    border-bottom: 1px solid var(--divider);
+    letter-spacing: -0.01em;
+  }
+  #mob-menu a:last-child { border-bottom: none; }
+  #mob-menu a.mob-cta {
+    margin-top: 8px;
+    background: var(--indigo);
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    border-bottom: none;
+    padding: 13px;
+    font-weight: 600;
+  }
+
+  @media(max-width:768px) {
+    #mob-menu-btn { display: flex !important; }
+    .nav-cta { display: none !important; }
+  }
+
+  /* ── MORPHING BLOBS (hero) ── */
+  @keyframes morph1 {
+    0%   { border-radius:60% 40% 55% 45%/50% 60% 40% 50%; transform:translate(0,0) scale(1); }
+    33%  { border-radius:40% 60% 45% 55%/60% 40% 55% 45%; transform:translate(3%,-4%) scale(1.06); }
+    66%  { border-radius:55% 45% 60% 40%/45% 55% 40% 60%; transform:translate(-2%,3%) scale(0.97); }
+    100% { border-radius:60% 40% 55% 45%/50% 60% 40% 50%; transform:translate(0,0) scale(1); }
+  }
+  @keyframes morph2 {
+    0%   { border-radius:45% 55% 40% 60%/55% 45% 60% 40%; transform:translate(0,0) scale(1); }
+    33%  { border-radius:60% 40% 55% 45%/40% 60% 45% 55%; transform:translate(-4%,3%) scale(1.08); }
+    66%  { border-radius:40% 60% 50% 50%/60% 40% 55% 45%; transform:translate(3%,-2%) scale(0.95); }
+    100% { border-radius:45% 55% 40% 60%/55% 45% 60% 40%; transform:translate(0,0) scale(1); }
+  }
+  @keyframes morph3 {
+    0%   { border-radius:50% 50% 45% 55%/45% 55% 50% 50%; transform:translate(0,0) scale(1); }
+    50%  { border-radius:40% 60% 55% 45%/55% 45% 40% 60%; transform:translate(4%,4%) scale(1.05); }
+    100% { border-radius:50% 50% 45% 55%/45% 55% 50% 50%; transform:translate(0,0) scale(1); }
+  }
+  .morph-blob { position:absolute; filter:blur(72px); will-change:transform,border-radius; }
+  .blob-1 { width:580px;height:520px;background:rgba(0,119,182,0.07);top:-120px;right:-80px;animation:morph1 18s ease-in-out infinite; }
+  .blob-2 { width:440px;height:400px;background:rgba(0,180,216,0.06);bottom:-60px;left:-80px;animation:morph2 22s ease-in-out infinite; }
+  .blob-3 { width:320px;height:300px;background:rgba(144,224,239,0.05);top:30%;left:35%;animation:morph3 26s ease-in-out infinite; }
+
+
+  /* ── PROBLEM: staggered counter cards ── */
+  .problem-card-anim {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .problem-card-anim.active { opacity:1; transform:translateY(0); }
+
+  .problem-counter {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--indigo);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    min-height: 16px;
+  }
+
+  /* ── FEATURES: circuit line ── */
+  .circuit-line-wrap {
+    position: relative;
+    margin-top: 32px;
+    margin-bottom: -8px;
+    height: 2px;
+    overflow: visible;
+  }
+  .circuit-line {
+    position: absolute;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--indigo), rgba(0,119,182,0.3));
+    transition: width 1.4s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px rgba(0,119,182,0.4);
+  }
+  .circuit-line.active { width: 100%; }
+  .circuit-dot {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--indigo);
+    box-shadow: 0 0 10px rgba(0,119,182,0.6);
+    transition: transform 0.3s ease;
+  }
+  .circuit-dot.active { transform: translateY(-50%) scale(1); }
+
+  /* ── PLATFORMS: vertical glow line ── */
+  .platforms-divider {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 0%;
+    background: linear-gradient(180deg, transparent, var(--indigo), rgba(0,119,182,0.3), transparent);
+    box-shadow: 0 0 12px rgba(0,119,182,0.5);
+    transition: height 1.2s cubic-bezier(.4,0,.2,1);
+    z-index: 2;
+  }
+  .platforms-divider.active { height: 100%; }
+
+  /* ── EARLY ACCESS: spots countdown ── */
+  .spots-counter {
+    font-family: 'Fira Code', monospace;
+    font-size: 48px;
+    font-weight: 500;
+    color: white;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 4px;
+  }
+  .spots-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  /* ── EMAIL CAPTURE: typing animation ── */
+  @keyframes blink {
+    0%,100% { opacity:1; }
+    50%      { opacity:0; }
+  }
+  .typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: rgba(255,255,255,0.6);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    margin-left: 1px;
+  }
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s cubic-bezier(.4,0,.2,1), transform 0.65s cubic-bezier(.4,0,.2,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ── COUNTER ANIMATION ── */
+  @keyframes countUp {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── FOUNDER CARD ── */
+  .founder-card {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    padding: 32px;
+    transition: transform 0.25s, background 0.2s, border-color 0.2s;
+  }
+  .founder-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); }
+
+  .founder-avatar {
+    width: 72px; height: 72px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ── EMAIL FORM ── */
+  .email-form {
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+  }
+  .email-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--h);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .email-input::placeholder { color: var(--mono); }
+  .email-input:focus { border-color: var(--indigo); }
+
+  /* ── ANIMATED COUNTER ── */
+  .stat-counter { display: inline-block; }
+
+  /* ── SECTION DIVIDER ANIMATION ── */
+  @keyframes lineGrow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  .divider-line {
+    height: 1px;
+    background: var(--indigo);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(.4,0,.2,1);
+  }
+  .divider-line.visible { transform: scaleX(1); }
+</style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<header class="nav">
+  <div class="wrap h-full flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <a href="#" style="font-weight:800;font-size:18px;letter-spacing:-0.04em;color:#F8FAFC;text-decoration:none;">
+        Porter<span style="color:#0077B6">.</span>
+      </a>
+      <nav class="nav-links-desktop hidden md:flex items-center gap-6">
+        <a href="#problem" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Problem</a>
+        <a href="#journey" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Journey</a>
+        <a href="#features" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Features</a>
+        <a href="#founders" class="eyebrow" style="letter-spacing:0.04em;font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Team</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#" class="nav-signin btn-outline hidden md:inline-block">Sign in</a>
+      <a href="#email-capture" class="nav-cta btn-indigo">Book a Demo</a>
+      <!-- Mobile hamburger -->
+      <button id="mob-menu-btn" onclick="toggleMobMenu()" style="display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;" aria-label="Menu">
+        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:14px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile nav drawer -->
+<div id="mob-menu">
+  <a href="#problem" onclick="toggleMobMenu()">Problem</a>
+  <a href="#journey" onclick="toggleMobMenu()">Journey</a>
+  <a href="#features" onclick="toggleMobMenu()">Features</a>
+  <a href="#founders" onclick="toggleMobMenu()">Team</a>
+  <a href="#email-capture" class="mob-cta" onclick="toggleMobMenu()">Book a Demo →</a>
+</div>
+<section class="hero-section" style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;position:relative;overflow:hidden;background:linear-gradient(180deg,#080C14 0%,#0D1420 30%,#111827 48%,#1a2235 58%,#243044 68%,#3d5068 76%,#6a85a0 84%,#FAF9F6 100%);">
+
+  <!-- Grid overlay -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.032) 1px,transparent 1px);background-size:56px 56px;mask-image:linear-gradient(180deg,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.4) 55%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.4) 55%,transparent 100%);pointer-events:none;z-index:1;"></div>
+
+  <!-- Glow orbs -->
+  <div style="position:absolute;width:600px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,119,182,0.16) 0%,transparent 70%);top:-80px;right:-60px;filter:blur(100px);pointer-events:none;z-index:0;animation:morph1 20s ease-in-out infinite alternate;"></div>
+  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,216,0.09) 0%,transparent 70%);top:20%;left:-80px;filter:blur(100px);pointer-events:none;z-index:0;animation:morph2 25s ease-in-out infinite alternate;"></div>
+
+  <div class="wrap relative z-10" style="padding-top:80px;padding-bottom:140px;position:relative;z-index:2;">
+    <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+
+      <!-- Left copy -->
+      <div>
+        <div class="anim animate-fadeUp" style="margin-bottom:36px;display:inline-flex;align-items:center;gap:10px;">
+          <span style="width:28px;height:1px;background:#0077B6;display:inline-block;"></span>
+          <span style="font-family:'Fira Code',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#38BDF8;">Agentic Commerce · Retail Media</span>
+        </div>
+
+        <h1 class="anim animate-fadeUp1" style="font-size:clamp(48px,6.5vw,88px);font-weight:800;line-height:0.96;letter-spacing:-0.025em;color:#F8FAFC;margin-bottom:0;white-space:nowrap;">
+          Intent layer<br>
+          <span style="background:linear-gradient(135deg,#38BDF8 0%,#0077B6 60%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">for retail media</span><br>
+          in agentic commerce.
+        </h1>
+
+        <div class="anim animate-fadeUp1" style="margin-top:24px;margin-bottom:40px;max-width:520px;">
+          <p style="font-size:0.22em;font-size:17px;font-weight:300;letter-spacing:0.01em;color:rgba(248,250,252,0.38);line-height:1.6;">The infrastructure advertising agencies need to stay relevant when AI mediates the purchase.</p>
+        </div>
+
+        <div class="anim animate-fadeUp2 hero-ctas" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:56px;">
+          <a href="#email-capture" style="background:#0077B6;color:#fff;font-weight:600;font-size:15px;padding:13px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;transition:background .15s,transform .15s,box-shadow .15s;" onmouseover="this.style.background='#005F92';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,119,182,0.4)'" onmouseout="this.style.background='#0077B6';this.style.transform='';this.style.boxShadow=''">Book a Demo →</a>
+          <a href="#journey" style="color:rgba(255,255,255,0.5);font-size:15px;font-weight:400;text-decoration:none;display:inline-flex;align-items:center;gap:6px;letter-spacing:-0.01em;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">See how it works →</a>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="anim animate-fadeUp3" style="display:flex;align-items:center;gap:20px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);white-space:nowrap;">Built for</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.45);"><span style="width:5px;height:5px;border-radius:50%;background:#0077B6;display:inline-block;animation:pulseDot 2s ease-in-out infinite;"></span>Ad Agencies</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.45);"><span style="width:5px;height:5px;border-radius:50%;background:#0077B6;display:inline-block;animation:pulseDot 2s ease-in-out infinite 0.4s;"></span>Retail Media Networks</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.45);"><span style="width:5px;height:5px;border-radius:50%;background:#0077B6;display:inline-block;animation:pulseDot 2s ease-in-out infinite 0.8s;"></span>E-Commerce Platforms</span>
+        </div>
+      </div>
+
+      <!-- Right: signal card (dark version) -->
+      <div class="hero-right" style="position:relative;display:flex;justify-content:center;align-items:center;min-height:440px;">
+        <div style="width:100%;max-width:360px;background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:24px;animation:floatY 8s ease-in-out infinite;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <span style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Intent Signal · Live</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,119,182,0.12);border:1px solid rgba(0,119,182,0.2);padding:3px 10px;border-radius:99px;font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;"><span style="width:5px;height:5px;border-radius:50%;background:#38BDF8;display:inline-block;animation:pulseDot 1.8s ease-in-out infinite;"></span>Processing</span>
+          </div>
+          <!-- Bars -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.28);width:114px;flex-shrink:0;">purchase_intent</span><div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div class="sig-bar" data-min="88" data-max="97" style="width:94%;height:100%;background:linear-gradient(90deg,#0077B6,#38BDF8);border-radius:99px;transition:width 1.8s ease;"></div></div><span class="sig-val" style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;width:28px;text-align:right;">0.94</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.28);width:114px;flex-shrink:0;">brand_affinity</span><div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div class="sig-bar" data-min="72" data-max="89" style="width:81%;height:100%;background:linear-gradient(90deg,#0077B6,#38BDF8);border-radius:99px;transition:width 1.8s ease;"></div></div><span class="sig-val" style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;width:28px;text-align:right;">0.81</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.28);width:114px;flex-shrink:0;">price_sensitivity</span><div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div class="sig-bar" data-min="55" data-max="78" style="width:67%;height:100%;background:linear-gradient(90deg,#0077B6,#38BDF8);border-radius:99px;transition:width 1.8s ease;"></div></div><span class="sig-val" style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;width:28px;text-align:right;">0.67</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.28);width:114px;flex-shrink:0;">category_match</span><div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div class="sig-bar" data-min="30" data-max="52" style="width:38%;height:100%;background:rgba(255,255,255,0.12);border-radius:99px;transition:width 1.8s ease;"></div></div><span class="sig-val" style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.25);width:28px;text-align:right;">0.38</span></div>
+          </div>
+          <!-- Chips -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:10px;text-align:center;"><div style="font-family:'Fira Code',monospace;font-size:18px;font-weight:500;color:#38BDF8;line-height:1;margin-bottom:3px;">6</div><div style="font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);">matches</div></div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:10px;text-align:center;"><div style="font-family:'Fira Code',monospace;font-size:18px;font-weight:500;color:#F8FAFC;line-height:1;margin-bottom:3px;">↑71%</div><div style="font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);">relevance</div></div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:10px;text-align:center;"><div style="font-family:'Fira Code',monospace;font-size:18px;font-weight:500;color:#F8FAFC;line-height:1;margin-bottom:3px;">11ms</div><div style="font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);">latency</div></div>
+          </div>
+          <!-- Outcome badge -->
+          <div style="position:absolute;bottom:-18px;left:-16px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;z-index:4;animation:floatY 7s ease-in-out infinite 1s;">
+            <div style="font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px;">Outcome</div>
+            <div style="font-size:12px;font-weight:600;color:#F8FAFC;letter-spacing:-0.02em;">Ad aligned to intent</div>
+            <div style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;">+2.8× CTR lift</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TICKER ══════ -->
+<div class="ticker-section" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);padding:14px 0;overflow:hidden;">
+  <div style="display:flex;width:max-content;" class="animate-marquee">
+    <!-- set 1 -->
+    <div style="display:flex;align-items:center;gap:28px;padding:0 28px;">
+      <span class="eyebrow" style="white-space:nowrap;">Agentic Commerce</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Retail Media</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Intent Infrastructure</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">AI-Mediated Discovery</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Decision Logic</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Generative Engine Optimisation</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Advertising Agencies</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Sponsored Alignment</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Purchase Automation</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Agent-Mediated Shopping</span><span style="color:var(--border);font-size:18px;">·</span>
+    </div>
+    <!-- set 2 duplicate -->
+    <div style="display:flex;align-items:center;gap:28px;padding:0 28px;">
+      <span class="eyebrow" style="white-space:nowrap;">Agentic Commerce</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Retail Media</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Intent Infrastructure</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">AI-Mediated Discovery</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Decision Logic</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Generative Engine Optimisation</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Advertising Agencies</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Sponsored Alignment</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Purchase Automation</span><span style="color:var(--border);font-size:18px;">·</span>
+      <span class="eyebrow" style="white-space:nowrap;">Agent-Mediated Shopping</span><span style="color:var(--border);font-size:18px;">·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PROBLEM ══════ -->
+<section class="section" id="problem">
+  <div class="wrap">
+
+    <!-- Header — aligned with slide title -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:56px;" class="reveal">
+      <div>
+        <div class="eyebrow" style="margin-bottom:16px;">The Emerging Shift</div>
+        <h2 class="h2" style="margin-bottom:0;">Evolving technology is leading to major changes in online commerce.</h2>
+      </div>
+      <p class="body-lg">When AI mediates product discovery, the observable signals agencies have always optimised — search queries, browsing behaviour, ad interactions — are bypassed. The decision happens before the ad is ever served.</p>
+    </div>
+
+    <!-- Two column: Legacy model left, Agentic model right -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+
+      <!-- Left: Legacy model -->
+      <div class="bento" style="padding:32px;">
+        <div class="eyebrow" style="color:var(--indigo);margin-bottom:20px;">Legacy Commerce Model</div>
+
+        <!-- Journey flow: 5 nodes -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:20px;overflow:hidden;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,119,182,0.1);border:1px solid rgba(0,119,182,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="#0077B6" stroke-width="1.2"/><path d="M2 13c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="#0077B6" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Customer</span>
+          </div>
+          <div style="flex-shrink:0;width:10px;height:1px;background:rgba(0,119,182,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,119,182,0.1);border:1px solid rgba(0,119,182,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#0077B6" stroke-width="1.2"/><path d="M9.5 9.5l2.5 2.5" stroke="#0077B6" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Search</span>
+          </div>
+          <div style="flex-shrink:0;width:10px;height:1px;background:rgba(0,119,182,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,119,182,0.1);border:1px solid rgba(0,119,182,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="#0077B6" stroke-width="1.2"/><path d="M4 6h6M4 8.5h4" stroke="#0077B6" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Browse</span>
+          </div>
+          <div style="flex-shrink:0;width:10px;height:1px;background:rgba(0,119,182,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,119,182,0.1);border:1px solid rgba(0,119,182,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10l-1 7H3L2 3z" stroke="#0077B6" stroke-width="1.2" stroke-linejoin="round"/><circle cx="5" cy="12" r="0.8" fill="#0077B6"/><circle cx="9" cy="12" r="0.8" fill="#0077B6"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Ads</span>
+          </div>
+          <div style="flex-shrink:0;width:10px;height:1px;background:rgba(0,119,182,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,119,182,0.1);border:1px solid rgba(0,119,182,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1h2l1.5 7h7l1-5H4" stroke="#0077B6" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Purchase</span>
+          </div>
+        </div>
+
+        <!-- Mid-card callout — key message from slide -->
+        <div style="text-align:center;padding:14px 0 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#94A3B8;">Agencies optimised across</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo);margin-top:3px;">Multiple Observable Steps</div>
+        </div>
+
+        <!-- Two sub-cols -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div class="eyebrow" style="color:var(--indigo);margin-bottom:10px;">Signals included</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Search Queries</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Browsing Behaviour</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Ad Interactions</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Conversion Data</div>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow" style="color:var(--indigo);margin-bottom:10px;">Enabled agencies to</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Refine product discovery</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Optimise ad placement</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;"><span style="color:#0077B6;font-weight:700;">↗</span> Influence purchase decisions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Agentic model -->
+      <div class="bento" style="padding:32px;background:#0F172A;border-color:rgba(255,255,255,0.06);">
+        <div class="eyebrow" style="color:#38BDF8;margin-bottom:20px;">Agentic Commerce Model</div>
+
+        <!-- Journey flow: 3 nodes (compressed) -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:20px;max-width:300px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="#38BDF8" stroke-width="1.2"/><path d="M2 13c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Customer</span>
+          </div>
+          <div style="flex-shrink:0;width:28px;height:1px;background:rgba(56,189,248,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#38BDF8" stroke-width="1.2"/><path d="M5 7l1.5 1.5L9.5 5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Agent</span>
+          </div>
+          <div style="flex-shrink:0;width:28px;height:1px;background:rgba(56,189,248,0.3);margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 3l4 4-4 4" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span style="font-size:10px;color:#64748B;font-family:'Fira Code',monospace;">Decision</span>
+          </div>
+        </div>
+
+        <!-- Mid-card callout — key message from slide -->
+        <div style="text-align:center;padding:14px 0 20px;border-top:1px solid rgba(255,255,255,0.07);border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#475569;">AI increasingly mediates</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#38BDF8;margin-top:3px;">Product Discovery</div>
+        </div>
+
+        <!-- Two sub-cols -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div class="eyebrow" style="color:#38BDF8;margin-bottom:10px;">New signals</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#38BDF8;font-weight:700;">↗</span> Interpreted Customer Intent</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#38BDF8;font-weight:700;">↗</span> Contextual Shopping Goals</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#38BDF8;font-weight:700;">↗</span> Semantic Product Understanding</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#38BDF8;font-weight:700;">↗</span> AI-driven Relevance Signals</div>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow" style="color:#DC2626;margin-bottom:10px;">Disables</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#DC2626;font-weight:700;">↘</span> Visibility — less behavioural insight</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#DC2626;font-weight:700;">↘</span> Control — less influence over discovery</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#DC2626;font-weight:700;">↘</span> Optimisation — fewer levers to adjust</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748B;"><span style="color:#DC2626;font-weight:700;">↘</span> Measurement — reduced attribution clarity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom tagline — from slide footer, now prominent standalone -->
+    <div style="text-align:center;padding:20px;border:1px solid rgba(220,38,38,0.15);border-radius:8px;background:rgba(220,38,38,0.04);">
+      <span style="font-size:14px;color:#94A3B8;letter-spacing:-0.01em;">The Emerging Risk: </span><span style="font-size:14px;font-weight:600;color:#DC2626;letter-spacing:-0.01em;">agencies risk losing their role in the journey.</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════ JOURNEY ══════ -->
+<section style="background:#07070D;padding:100px 0;position:relative;overflow:hidden;" id="journey">
+
+  <!-- Dot grid -->
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.07) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;"></div>
+  <!-- Vignette -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(7,7,13,0.9) 100%);pointer-events:none;z-index:1;"></div>
+
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:56px;" class="reveal">
+      <div>
+        <div class="eyebrow" style="color:#0077B6;margin-bottom:16px;">Customer Journey & Personalization</div>
+        <h2 class="h2" style="color:#F8FAFC;">Two journeys.<br>One clear direction.</h2>
+      </div>
+      <p class="body-lg" style="color:#475569;">The human shopping journey is long, signal-rich but unstructured. The agentic journey is compressed, profile-driven, and decided in moments. Porter operates at the intersection.</p>
+    </div>
+
+    <div style="position:relative;width:100%;height:420px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.01);">
+      <canvas id="journey-canvas" style="display:block;width:100%;height:100%;"></canvas>
+      <button onclick="replayJourney()" style="position:absolute;bottom:16px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;transition:color .15s,border-color .15s;" onmouseover="this.style.color='rgba(255,255,255,0.7)';this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.color='rgba(255,255,255,0.3)';this.style.borderColor='rgba(255,255,255,0.08)'">↺ Replay</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:28px;margin-top:20px;">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Fira Code',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#94A3B8;"></div>
+        <span style="color:#94A3B8;">Human Flow — Shopper, no prior data</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Fira Code',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#00E5FF;box-shadow:0 0 6px #00E5FF;"></div>
+        <span style="color:#38BDF8;">Agentic Flow — Customer with profile</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ BENTO FEATURES ══════ -->
+<section class="section" id="features" style="position:relative;overflow:hidden;">
+  <canvas id="features-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.45;"></canvas>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div style="margin-bottom:56px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;">How Porter Works</div>
+      <h2 class="h2" style="max-width:480px;">Every stage of the discovery journey.</h2>
+    </div>
+
+    <!-- Bento grid: 12 cols -->
+    <div class="bento-grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:10px;" class="reveal reveal-delay-1">
+
+      <!-- Discovery — large -->
+      <div class="bento bento-discovery problem-card-anim" data-counter="agency budgets misallocated" style="grid-column:span 5;padding:28px;"><div class="problem-counter"></div>
+        <div style="width:34px;height:34px;border-radius:6px;background:rgba(0,119,182,0.08);border:1px solid rgba(0,119,182,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="#0077B6" stroke-width="1.2"/><path d="M10 10l2.5 2.5" stroke="#0077B6" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:var(--indigo);margin-bottom:6px;">01</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Discovery</div>
+        <div class="body-sm" style="margin-bottom:20px;">Understanding what the customer actually wants — beyond the initial query, in real time.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">initial_query</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:28%;background:rgba(15,23,42,0.12);"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">intent_signal</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:82%;"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="eyebrow" style="font-size:9px;width:90px;flex-shrink:0;">refined_match</span>
+            <div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:96%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refinement -->
+      <div class="bento bento-refinement" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#EFF6FF;border:1px solid rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M4 7h6M6 10h2" stroke="#3B82F6" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#3B82F6;margin-bottom:6px;">02</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Refinement</div>
+        <div class="body-sm">Helping customers narrow choices through live intent signals — no manual filtering required.</div>
+      </div>
+
+      <!-- Dark stat card -->
+      <div class="bento-dark bento-stat" style="grid-column:span 3;padding:28px;">
+        <div class="eyebrow" style="color:#475569;margin-bottom:20px;">Impact</div>
+        <div style="margin-bottom:18px;">
+          <div style="font-family:'Fira Code',mono;font-size:34px;font-weight:500;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:4px;">[<span style="color:#38BDF8;">X</span>%]</div>
+          <div style="font-size:12px;color:#475569;">fewer abandoned carts</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:18px;"></div>
+        <div>
+          <div style="font-family:'Fira Code',mono;font-size:34px;font-weight:500;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:4px;">[<span style="color:#38BDF8;">X</span>×]</div>
+          <div style="font-size:12px;color:#475569;">conversion rate uplift</div>
+        </div>
+      </div>
+
+      <!-- Alignment -->
+      <div class="bento bento-alignment" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#FFFBEB;border:1px solid rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#F59E0B;margin-bottom:6px;">03</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Alignment</div>
+        <div class="body-sm">Surfacing products and sponsored placements that match the evolving journey — at the right moment.</div>
+      </div>
+
+      <!-- Decision -->
+      <div class="bento bento-decision" style="grid-column:span 4;padding:28px;">
+        <div style="width:34px;height:34px;border-radius:6px;background:#F0FDF4;border:1px solid rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 8l4 4 6-7" stroke="#22C55E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="eyebrow" style="color:#22C55E;margin-bottom:6px;">04</div>
+        <div class="label-sm" style="font-size:17px;margin-bottom:8px;">Decision</div>
+        <div class="body-sm">Reducing friction and enabling faster, more confident purchase decisions — every session.</div>
+      </div>
+
+      <!-- Indigo wide card: inventory -->
+      <div class="bento-inventory" style="grid-column:span 4;background:var(--indigo);border-radius:8px;padding:28px;transition:transform .25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+        <div style="width:34px;height:34px;border-radius:6px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="5" height="5" rx="1" stroke="white" stroke-width="1.2"/><rect x="8" y="2" width="5" height="5" rx="1" stroke="white" stroke-width="1.2"/><rect x="1" y="9" width="5" height="3" rx="1" stroke="white" stroke-width="1.2"/><rect x="8" y="9" width="5" height="3" rx="1" stroke="white" stroke-width="1.2"/></svg>
+        </div>
+        <div style="font-family:'Fira Code',mono;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Inventory</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.03em;margin-bottom:8px;">Long-tail visibility</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6;">Products that never get discovered become visible to the customers most likely to buy them.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOR WHO ══════ -->
+<section class="section platforms-section" style="background:#07070D;position:relative;overflow:hidden;" id="platforms">
+
+  <!-- Layer 1: center glow blob (peacock blue tint) -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(0,119,182,0.14) 0%,transparent 60%),radial-gradient(ellipse 25% 25% at 50% 50%,rgba(0,150,210,0.08) 0%,transparent 45%);pointer-events:none;z-index:0;"></div>
+  <!-- Layer 2: wave dot canvas -->
+  <canvas id="forWhoWaveCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;display:block;"></canvas>
+
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div style="margin-bottom:52px;" class="reveal">
+      <div class="eyebrow" style="color:#0077B6;margin-bottom:16px;">Who Porter Is For</div>
+      <h2 class="h2" style="color:#F8FAFC;max-width:600px;margin-bottom:16px;">Porter strengthens the entire retail media ecosystem.</h2>
+      <p style="font-size:16px;color:#475569;max-width:520px;line-height:1.65;letter-spacing:-0.01em;">The intent layer benefits every participant — from the customer whose journey is improved, to the agency that retains its role, to the platform that monetises intent at scale.</p>
+    </div>
+
+    <!-- Ecosystem grid: 4 cards with electric blue dividers -->
+    <div style="position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:0;" class="platforms-grid">
+
+      <!-- Electric blue vertical dividers -->
+      <div style="position:absolute;top:0;bottom:0;left:calc(25%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
+      <div style="position:absolute;top:0;bottom:0;left:calc(50%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
+      <div style="position:absolute;top:0;bottom:0;left:calc(75%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
+
+      <!-- Customer — primary -->
+      <div style="background:rgba(0,119,182,0.08);border:1px solid rgba(0,119,182,0.2);border-right:none;border-radius:8px 0 0 8px;padding:28px;transition:background .2s;position:relative;z-index:2;" onmouseover="this.style.background='rgba(0,119,182,0.14)'" onmouseout="this.style.background='rgba(0,119,182,0.08)'">
+        <div style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Primary</div>
+        <div style="font-size:18px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.2;">Customer</div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:16px;">The person whose shopping journey becomes faster, more relevant, and less frustrating — in both human and agentic models.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#38BDF8;flex-shrink:0;margin-top:6px;"></span>Faster path to the right product</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#38BDF8;flex-shrink:0;margin-top:6px;"></span>Intent understood, not assumed</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#38BDF8;flex-shrink:0;margin-top:6px;"></span>Returns to platforms that understand them</li>
+        </ul>
+      </div>
+
+      <!-- Agencies -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;border-radius:0;padding:28px;transition:background .2s;position:relative;z-index:2;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+        <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Agencies</div>
+        <div style="font-size:18px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.2;">Advertising Agencies</div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:16px;">Porter enables agencies to maintain targeting precision and campaign optimisation in agent-mediated interactions.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Align sponsored placements with real-time intent</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Optimise campaigns on refined discovery signals</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Improve retail media spend performance</li>
+        </ul>
+      </div>
+
+      <!-- Platforms -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;border-radius:0;padding:28px;transition:background .2s;position:relative;z-index:2;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+        <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Platforms</div>
+        <div style="font-size:18px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.2;">E-Commerce Platforms</div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:16px;">Reach customers at the moment of intent. Power a retail media offering that converts.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Monetise intent signals at scale</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Attract agency budgets with intent data</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Become indispensable to agency partners</li>
+        </ul>
+      </div>
+
+      <!-- Brands -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-radius:0 8px 8px 0;padding:28px;transition:background .2s;position:relative;z-index:2;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+        <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Brands</div>
+        <div style="font-size:18px;font-weight:700;color:#F8FAFC;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.2;">Brands & Advertisers</div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:16px;">Retain the ability to optimise campaigns effectively in a world where AI increasingly mediates discovery.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Improved product visibility in AI discovery</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Higher conversion per impression</li>
+          <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#64748B;"><span style="width:4px;height:4px;border-radius:50%;background:#0077B6;flex-shrink:0;margin-top:6px;"></span>Reach customers at the moment of real intent</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ EARLY ACCESS ══════ -->
+<section class="section" style="background:var(--surface);" id="early-access">
+  <div class="wrap">
+    <div class="early-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div>
+        <div class="eyebrow" style="margin-bottom:16px;">Early Adoption Programme</div>
+        <h2 class="h2" style="margin-bottom:20px;">Be first to retain your role in the agentic journey.</h2>
+        <p class="body-lg" style="margin-bottom:32px;">We are selectively onboarding advertising agencies and retail media networks to explore Porter before general availability.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Maintain targeting precision in agent-mediated interactions
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Align sponsored placements with real-time customer intent
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--h);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Optimise campaigns based on refined discovery signals
+          </div>
+        </div>
+        <a href="#email-capture" class="btn-indigo">Book a Demo →</a>
+      </div>
+
+      <!-- Right CTA panel -->
+      <div class="early-cta-panel" style="background:#0077B6;border-radius:8px;padding:44px;position:relative;overflow:hidden;">
+        <div style="position:relative;z-index:1;">
+          <div style="font-family:'Fira Code',mono;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">This is an opportunity to</div>
+          <div class="spots-counter" id="spots-num">47</div>
+          <div class="spots-label">spots remaining in early access</div>
+          <h3 style="font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1.15;margin-bottom:14px;">Explore the next generation of product discovery.</h3>
+          <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.65;margin-bottom:28px;">Agencies that move early will retain targeting precision, campaign optimisation, and decision influence in the agentic era.</p>
+          <a href="mailto:hello@porter.com" style="display:inline-block;background:#fff;color:#0077B6;font-weight:700;font-size:14px;padding:11px 22px;border-radius:8px;text-decoration:none;transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">Get in touch →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOUNDERS ══════ -->
+<section class="section" style="background:#07070D;position:relative;overflow:hidden;" id="founders">
+  <!-- Layer 1: center glow blob -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(63,70,140,0.18) 0%,transparent 60%),radial-gradient(ellipse 25% 25% at 50% 50%,rgba(80,90,160,0.10) 0%,transparent 45%);pointer-events:none;z-index:0;"></div>
+  <!-- Layer 2: wave dot canvas -->
+  <canvas id="teamCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;display:block;"></canvas>
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div style="max-width:560px;margin-bottom:56px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;color:#0077B6;">The Team</div>
+      <h2 class="h2" style="margin-bottom:16px;color:#F8FAFC;">Built by people who understand commerce.</h2>
+      <p class="body-lg" style="color:#475569;">Porter is founded by operators with deep experience across advertising, AI, and e-commerce — not researchers building in a vacuum.</p>
+    </div>
+
+    <div class="founders-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <!-- Founder 1: CEO -->
+      <div class="founder-card reveal reveal-delay-1">
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+          <div class="founder-avatar">
+            <!-- Replace with actual photo: <img src="..." style="width:100%;height:100%;object-fit:cover;"> -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="10" r="5" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+              <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:#F1F5F9;letter-spacing:-0.03em;margin-bottom:3px;">[ Founder Name ]</div>
+            <div class="eyebrow" style="color:#818CF8;">Co-Founder & CEO</div>
+          </div>
+        </div>
+        <p style="font-size:14px;line-height:1.65;color:#94A3B8;letter-spacing:-0.01em;margin-bottom:20px;">Serial entrepreneur with 15+ years across advertising technology, e-commerce, and B2B SaaS. Previously founded and scaled two venture-backed companies. Deep operator experience on both the platform and brand side of commerce.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">15+ yrs experience</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">Ad Tech</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">E-Commerce</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">Serial Founder</span>
+        </div>
+      </div>
+
+      <!-- Founder 2: CTO -->
+      <div class="founder-card reveal reveal-delay-2">
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+          <div class="founder-avatar">
+            <!-- Replace with actual photo: <img src="..." style="width:100%;height:100%;object-fit:cover;"> -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="10" r="5" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+              <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:#F1F5F9;letter-spacing:-0.03em;margin-bottom:3px;">[ Founder Name ]</div>
+            <div class="eyebrow" style="color:#818CF8;">Co-Founder & CTO</div>
+          </div>
+        </div>
+        <p style="font-size:14px;line-height:1.65;color:#94A3B8;letter-spacing:-0.01em;margin-bottom:20px;">PhD in Artificial Intelligence with 10+ years building production-grade ML systems. Previously co-founded a deep tech startup acquired by a publicly traded company. Specialist in real-time recommendation systems and large-scale intent modeling.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">PhD · AI</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">10+ yrs ML</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">Previous Exit</span>
+          <span style="font-family:'Fira Code',monospace;font-size:10px;color:#64748B;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:3px 9px;border-radius:4px;">Intent Modeling</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ EMAIL CAPTURE ══════ -->
+<section class="section" style="background:#0F172A;position:relative;overflow:hidden;" id="email-capture">
+  <canvas id="radial-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6;"></canvas>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div class="email-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div class="reveal">
+        <div class="eyebrow" style="color:#475569;margin-bottom:16px;">Early Tester Programme</div>
+        <h2 class="h2" style="color:#F8FAFC;margin-bottom:16px;">Book a Demo.</h2>
+        <p style="font-size:17px;line-height:1.65;color:#475569;letter-spacing:-0.01em;margin-bottom:8px;">
+          We are selectively onboarding e-commerce platforms and retailers to explore Porter.
+        </p>
+        <p style="font-size:14px;color:#334155;letter-spacing:-0.01em;">For retailers and e-commerce platforms only.</p>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <div class="email-form-panel" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:36px;">
+          <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;">Leave your details</div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+            <input
+              type="text"
+              placeholder="Your name"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+            <input
+              type="email"
+              placeholder="Work email address"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+            <input
+              type="text"
+              placeholder="Platform / company name"
+              class="email-input"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+            />
+          </div>
+
+          <button
+            onclick="handleSubmit(this)"
+            class="btn-indigo"
+            style="width:100%;justify-content:center;text-align:center;cursor:pointer;border:none;">
+            Book a Demo →
+          </button>
+
+          <p style="font-size:12px;color:#334155;margin-top:14px;letter-spacing:-0.01em;font-family:'Fira Code',monospace;">
+            For retailers and e-commerce platforms only. We review every application.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FAQ ══════ -->
+<section class="section" style="background:var(--surface);" id="faq">
+  <div class="wrap">
+    <div style="max-width:560px;margin-bottom:48px;" class="reveal">
+      <div class="eyebrow" style="margin-bottom:16px;">FAQ</div>
+      <h2 class="h2" style="margin-bottom:16px;">Common questions.</h2>
+      <p class="body-lg">If you have a question that isn't here, <a href="#email-capture" style="color:var(--indigo);text-decoration:none;">get in touch</a>.</p>
+    </div>
+    <div style="max-width:720px;border-top:1px solid var(--border);">
+
+      <div class="faq-item reveal reveal-delay-1" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">What exactly is Porter?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Porter is an intent layer for retail media — infrastructure that captures and interprets customer intent signals in both human and agentic commerce environments. It gives advertising agencies and e-commerce platforms access to the signals that AI-mediated discovery operates on, so they can maintain targeting precision and campaign optimisation as the purchase journey changes.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-2" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">Why does this matter for advertising agencies specifically?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">When AI agents mediate product discovery, the observable signals agencies have always optimised — search queries, browsing behaviour, ad interactions — are bypassed before a campaign ever has a chance to influence the decision. Porter surfaces the new signals (interpreted intent, contextual shopping goals, semantic product understanding) that allow agencies to stay relevant inside agentic commerce flows.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-3" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">Does Porter replace our existing campaign management tools?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">No. Porter is an intent layer that sits alongside your existing stack — it feeds richer signals into the tools you already use for targeting, placement, and optimisation. It is not a media buying platform and does not require you to change how campaigns are managed.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-4" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">How does Porter integrate with our platform?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Porter connects via API and is platform-agnostic — it does not require switching your e-commerce infrastructure or ad serving setup. During onboarding we work with your technical team to ensure a clean integration with minimal disruption to existing operations.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-1" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">What data does Porter collect and how is it handled?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Porter processes behavioural and contextual signals from customer interactions on the platform — interpreted at the session level, not tied to individual identifiable profiles. We can provide full data processing documentation and sign a DPA as part of onboarding.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-2" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">How is Porter different from a standard retail media network?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Retail media networks monetise inventory — Porter makes that inventory smarter by feeding it real-time intent signals. The difference is that Porter operates at the intent layer, meaning sponsored placements are aligned to what the customer is actually deciding in the moment, not just what they browsed last session.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-3" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">Does Porter work for both human and agentic shopping journeys?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Yes. Porter is designed to operate across both — it captures intent signals in traditional browse-and-search journeys and in compressed AI-agent-mediated flows where the decision happens in moments. The same infrastructure serves both models, which is why platforms can deploy it now and be ready as agentic commerce scales.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-4" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">What does the onboarding process look like?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">We are currently in selective early access. After a demo call, we scope the integration together and run an initial deployment on a defined segment of your platform traffic. We work closely with your team throughout — this is not a self-serve setup.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-1" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">How does pricing work?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Pricing is scoped per engagement based on platform size and integration depth. We do not publish a self-serve rate card at this stage — get in touch and we will walk you through what makes sense for your setup.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal reveal-delay-2" style="border-bottom:1px solid var(--border);padding:24px 0;">
+        <button class="faq-q" onclick="toggleFAQ(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;text-align:left;gap:16px;padding:0;">
+          <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.02em;">How do I get started?</span>
+          <span class="faq-icon" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="faq-a" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
+          <p style="font-size:15px;color:var(--body);line-height:1.65;margin:0;padding-top:14px;">Book a demo using the form on this page. We review every application and follow up within a few business days to schedule a call with the right people on both sides.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CLOSING ══════ -->
+<section class="closing-section" style="background:var(--bg);border-top:1px solid var(--border);padding:72px 0;text-align:center;">
+  <div class="wrap">
+    <h2 class="h2 closing-h2" style="margin-bottom:12px;max-width:600px;margin-left:auto;margin-right:auto;">The decision happens before the ad is served.</h2>
+    <p class="body-lg" style="max-width:480px;margin:0 auto 32px;">Agencies that don't act now will lose visibility, control, and optimisation leverage — permanently. Porter gives you the intent layer to stay in the journey.</p>
+    <a href="#email-capture" class="btn-indigo">Book a Demo →</a>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer style="background:#0F172A;border-top:1px solid rgba(255,255,255,0.04);padding:24px 0;">
+  <div class="wrap footer-inner" style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-weight:800;font-size:17px;letter-spacing:-0.04em;color:rgba(255,255,255,0.4);">Porter<span style="color:#0077B6;">.</span></div>
+    <p style="font-family:'Fira Code',mono;font-size:11px;color:rgba(255,255,255,0.2);">© 2025 Porter. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // ══════ FOR WHO DOT CANVAS (subtle) ══════
+  (function() {
+    const canvas = document.getElementById('forWhoCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, pulse = 0;
+    const SPACING = 28, DOT_R = 0.6;
+    const BASE = [80, 110, 150];
+    const PULSE_C = [100, 140, 200];
+
+    function resize() {
+      const s = canvas.parentElement;
+      W = canvas.width  = s.offsetWidth;
+      H = canvas.height = s.offsetHeight;
+    }
+
+    function lerp(a,b,t){ return a+(b-a)*t; }
+    function lerpC(c1,c2,t){ return [Math.round(lerp(c1[0],c2[0],t)),Math.round(lerp(c1[1],c2[1],t)),Math.round(lerp(c1[2],c2[2],t))]; }
+
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      const cx=W/2, cy=H/2;
+      const maxD=Math.sqrt(cx*cx+cy*cy);
+      pulse=(pulse+0.004)%1;
+      const sx=(W%SPACING)/2, sy=(H%SPACING)/2;
+      const cols=Math.ceil(W/SPACING)+2, rows=Math.ceil(H/SPACING)+2;
+
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          const x=sx+c*SPACING, y=sy+r*SPACING;
+          const dist=Math.sqrt((x-cx)**2+(y-cy)**2);
+          const norm=dist/maxD;
+          const mask=Math.pow(Math.max(0,1-norm*1.35),1.5);
+          if(mask<0.01) continue;
+          const wp=norm-pulse;
+          const wave=Math.exp(-(wp*wp)/0.005)*(1-norm*0.8);
+          const baseAlpha=lerp(0.08,0.22,1-norm)*mask;
+          const alpha=Math.min(baseAlpha+wave*0.3*mask,0.55);
+          const col=wave>0.05?lerpC(BASE,PULSE_C,Math.min(wave*1.5,1)):BASE;
+          ctx.beginPath();
+          ctx.arc(x,y,DOT_R+wave*0.35,0,Math.PI*2);
+          ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;
+          ctx.fill();
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('load',()=>{ resize(); draw(); });
+    window.addEventListener('resize', resize);
+  })();
+
+  // ══════ FAQ accordion ══════
+  function toggleFAQ(btn) {
+    const item = btn.closest('.faq-item');
+    const ans  = item.querySelector('.faq-a');
+    const icon = item.querySelector('.faq-icon');
+    const isOpen = ans.style.maxHeight && ans.style.maxHeight !== '0px';
+    document.querySelectorAll('.faq-a').forEach(a => { a.style.maxHeight = '0'; });
+    document.querySelectorAll('.faq-icon').forEach(ic => { ic.style.transform = ''; ic.style.background = ''; });
+    if (!isOpen) {
+      ans.style.maxHeight = ans.scrollHeight + 'px';
+      icon.style.transform = 'rotate(180deg)';
+      icon.style.background = 'rgba(0,119,182,0.08)';
+    }
+  }
+
+  function toggleMobMenu() {
+    const menu = document.getElementById('mob-menu');
+    menu.classList.toggle('open');
+  }
+
+  // Close menu on outside click
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mob-menu');
+    const btn   = document.getElementById('mob-menu-btn');
+    if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+
+
+  // ══════ FOR WHO — subtle dot pulse canvas ══════
+  (function() {
+    const canvas = document.getElementById('forWhoWaveCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, pulse = 0;
+    const SPACING = 28, DOT_R = 0.7;
+    const BASE = [0, 100, 160], PULSE_C = [0, 150, 210];
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function lerpC(c1,c2,t){return[Math.round(lerp(c1[0],c2[0],t)),Math.round(lerp(c1[1],c2[1],t)),Math.round(lerp(c1[2],c2[2],t))];}
+    function resize(){const s=canvas.parentElement;W=canvas.width=s.offsetWidth;H=canvas.height=s.offsetHeight;}
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      const cx=W/2,cy=H/2,maxD=Math.sqrt(cx*cx+cy*cy);
+      pulse=(pulse+0.005)%1;
+      const sx=(W%SPACING)/2,sy=(H%SPACING)/2;
+      const cols=Math.ceil(W/SPACING)+2,rows=Math.ceil(H/SPACING)+2;
+      for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){
+        const x=sx+c*SPACING,y=sy+r*SPACING;
+        const norm=Math.sqrt((x-cx)**2+(y-cy)**2)/maxD;
+        const mask=Math.pow(Math.max(0,1-norm*1.3),1.5);
+        if(mask<0.01)continue;
+        const wp=norm-pulse;
+        const wave=Math.exp(-(wp*wp)/0.004)*(1-norm*0.8);
+        const alpha=Math.min(lerp(0.08,0.28,1-norm)*mask+wave*0.35*mask,0.65);
+        const col=wave>0.05?lerpC(BASE,PULSE_C,Math.min(wave*1.2,1)):BASE;
+        ctx.beginPath();ctx.arc(x,y,DOT_R+wave*0.4,0,Math.PI*2);
+        ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;ctx.fill();
+      }}
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('load',()=>{resize();draw();});
+    window.addEventListener('resize',resize);
+  })();
+
+  // ══════ TEAM — wave dot canvas ══════
+  (function() {
+    const canvas = document.getElementById('teamCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, pulse = 0;
+    const SPACING = 28, DOT_R = 0.8;
+    const BASE = [100, 130, 180], PULSE_C = [140, 155, 220];
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function lerpC(c1,c2,t){return[Math.round(lerp(c1[0],c2[0],t)),Math.round(lerp(c1[1],c2[1],t)),Math.round(lerp(c1[2],c2[2],t))];}
+    function resize(){const s=canvas.parentElement;W=canvas.width=s.offsetWidth;H=canvas.height=s.offsetHeight;}
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      const cx=W/2,cy=H/2,maxD=Math.sqrt(cx*cx+cy*cy);
+      pulse=(pulse+0.006)%1;
+      const sx=(W%SPACING)/2,sy=(H%SPACING)/2;
+      const cols=Math.ceil(W/SPACING)+2,rows=Math.ceil(H/SPACING)+2;
+      for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){
+        const x=sx+c*SPACING,y=sy+r*SPACING;
+        const norm=Math.sqrt((x-cx)**2+(y-cy)**2)/maxD;
+        const mask=Math.pow(Math.max(0,1-norm*1.3),1.5);
+        if(mask<0.01)continue;
+        const wp=norm-pulse;
+        const wave=Math.exp(-(wp*wp)/0.004)*(1-norm*0.8);
+        const baseAlpha=lerp(0.15,0.55,1-norm)*mask;
+        const alpha=Math.min(baseAlpha+wave*0.5*mask,0.85);
+        const col=wave>0.05?lerpC(BASE,PULSE_C,Math.min(wave*1.2,1)):BASE;
+        ctx.beginPath();ctx.arc(x,y,DOT_R+wave*0.4,0,Math.PI*2);
+        ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;ctx.fill();
+      }}
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('load',()=>{resize();draw();});
+    window.addEventListener('resize',resize);
+  })();
+
+  // ══════ 2. PARTICLE CANVAS — FEATURES (sparse) ══════
+  (function() {
+    const canvas = document.getElementById('features-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes = [];
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+
+    function initNodes(count) {
+      nodes = [];
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.18,
+          vy: (Math.random() - 0.5) * 0.18,
+          r: Math.random() * 1.2 + 0.4,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const LINK = 100;
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < LINK) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(0,119,182,${0.07 * (1 - d/LINK)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,119,182,0.18)';
+        ctx.fill();
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initNodes(28);
+    draw();
+    window.addEventListener('resize', () => { resize(); initNodes(28); });
+  })();
+
+  // ══════ 3. RADIAL BURST — EMAIL CAPTURE (dark) ══════
+  (function() {
+    const canvas = document.getElementById('radial-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, lines = [];
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      initLines();
+    }
+
+    function initLines() {
+      lines = [];
+      const COUNT = 60;
+      for (let i = 0; i < COUNT; i++) {
+        const angle = (i / COUNT) * Math.PI * 2;
+        const len   = 120 + Math.random() * 180;
+        lines.push({
+          angle,
+          len,
+          progress: Math.random(),
+          speed: 0.0015 + Math.random() * 0.002,
+          dot: Math.random() > 0.4,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const cx = W * 0.72;
+      const cy = H * 0.5;
+
+      lines.forEach(l => {
+        l.progress += l.speed;
+        if (l.progress > 1.4) l.progress = 0;
+
+        const p = Math.min(l.progress, 1);
+        const endX = cx + Math.cos(l.angle) * l.len * p;
+        const endY = cy + Math.sin(l.angle) * l.len * p;
+        const fade = l.progress > 1 ? 1 - (l.progress - 1) / 0.4 : 1;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = `rgba(56,189,248,${0.18 * fade})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        if (l.dot && p > 0.9) {
+          ctx.beginPath();
+          ctx.arc(endX, endY, 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(56,189,248,${0.55 * fade})`;
+          ctx.fill();
+        }
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+  })();
+
+  // ══════ 4. ANIMATED SIGNAL BARS ══════
+  (function() {
+    const bars = document.querySelectorAll('.sig-bar');
+    const vals = document.querySelectorAll('.sig-val');
+    if (!bars.length) return;
+
+    function pulse() {
+      bars.forEach((bar, i) => {
+        const min = parseFloat(bar.dataset.min);
+        const max = parseFloat(bar.dataset.max);
+        const val = min + Math.random() * (max - min);
+        const pct = val.toFixed(0);
+        bar.style.width = pct + '%';
+        if (vals[i]) {
+          const isLow = i === 3;
+          vals[i].textContent = (val / 100).toFixed(2);
+          vals[i].style.color = isLow ? 'var(--mono)' : 'var(--indigo)';
+          bar.style.background = isLow ? 'rgba(15,23,42,0.15)' : 'var(--indigo)';
+        }
+      });
+    }
+
+    setInterval(pulse, 2200);
+  })();
+
+  // ══════ 5. JOURNEY CANVAS — Human + Agentic Flow ══════
+  (function() {
+const canvas = document.getElementById('journey-canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, raf, state = {}, phaseFrame = 0;
+
+// ── Colors ──
+const C = {
+  human:     '#94A3B8',
+  humanGlow: 'rgba(148,163,184,',
+  agent:     '#00E5FF',
+  agentGlow: 'rgba(0,229,255,',
+  porter:    '#0077B6',
+  porterGlow:'rgba(0,119,182,',
+  dim:       'rgba(255,255,255,0.08)',
+  text:      'rgba(248,250,252,0.85)',
+  textDim:   'rgba(100,116,139,0.8)',
+};
+
+// ── Layout (computed after resize) ──
+let L = {};
+
+function resize() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  W = canvas.width  = r.width;
+  H = canvas.height = r.height;
+  buildLayout();
+}
+
+function buildLayout() {
+  const topY    = H * 0.32;   // human flow Y
+  const botY    = H * 0.74;   // agentic flow Y
+  const midY    = H * 0.50;   // porter node Y
+  const pad     = W * 0.08;
+
+  // Human nodes: Shopper → Search → Browse → Ads → Purchase
+  const hCount  = 5;
+  const hSpan   = W * 0.72;
+  const hStep   = hSpan / (hCount - 1);
+  const hStartX = pad;
+
+  // Agentic nodes: Customer → Agent → Decision
+  const aCount  = 3;
+  const aSpan   = W * 0.52;
+  const aStep   = aSpan / (aCount - 1);
+  const aStartX = pad + W * 0.1;
+
+  // Porter node — center of canvas, between the two flows
+  const porterX = W * 0.50;
+
+  L = {
+    topY, botY, midY,
+    human: [
+      { x: hStartX + 0*hStep, y: topY, label: 'Shopper',  sub: 'no prior data' },
+      { x: hStartX + 1*hStep, y: topY, label: 'Search',   sub: 'keyword query' },
+      { x: hStartX + 2*hStep, y: topY, label: 'Browse',   sub: 'manual scan' },
+      { x: hStartX + 3*hStep, y: topY, label: 'Ads',      sub: 'generic placement' },
+      { x: hStartX + 4*hStep, y: topY, label: 'Purchase', sub: 'if not abandoned' },
+    ],
+    agent: [
+      { x: aStartX + 0*aStep, y: botY, label: 'Customer', sub: 'full profile' },
+      { x: aStartX + 1*aStep, y: botY, label: 'Agent',    sub: 'intent processing' },
+      { x: aStartX + 2*aStep, y: botY, label: 'Decision', sub: 'automated' },
+    ],
+    porter: { x: porterX, y: midY, label: 'Porter', sub: 'intent layer' },
+  };
+}
+
+// ── Phase system ──
+// Ph 0-3: draw human path + nodes one by one
+// Ph 4: pause
+// Ph 5: porter node glows
+// Ph 6-7: draw agentic path + nodes
+// Ph 8: porter connects both flows with signal lines
+// Ph 9: loop — packets travel both paths
+
+const DURS = [40, 35, 35, 35, 20, 30, 35, 35, 40, 9999];
+
+function resetState() {
+  phaseFrame = 0;
+  state = {
+    ph: 0,
+    humanPaths: [0, 0, 0, 0],   // progress of each segment
+    agentPaths: [0, 0],
+    humanNodes: [0, 0, 0, 0, 0], // glow 0-1
+    agentNodes: [0, 0, 0],
+    porterGlow: 0,
+    porterPulse: 0,
+    // Connector lines from porter to both flows
+    topConn: 0,
+    botConn: 0,
+    // Loop packets
+    humanPkt: -1,  // -1 = not active
+    agentPkt: -1,
+    loopT: 0,
+  };
+}
+
+function eio(t) { return t < .5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function lerp(a,b,t) { return a+(b-a)*t; }
+
+function glow(c,b) { ctx.shadowColor=c; ctx.shadowBlur=b; }
+function ng()      { ctx.shadowColor='transparent'; ctx.shadowBlur=0; }
+
+// Draw a partial line
+function drawLine(x1,y1,x2,y2,p,col,lw,bl) {
+  if(p<=0) return; p=Math.min(p,1);
+  ctx.save(); ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.lineTo(x1+(x2-x1)*p, y1+(y2-y1)*p);
+  ctx.strokeStyle=col; ctx.lineWidth=lw; glow(col,bl); ctx.stroke(); ng(); ctx.restore();
+}
+
+// Draw a node
+function drawNode(n, col, glowCol, gl, r, isPorter) {
+  // Outer glow ring
+  if(gl > 0.05) {
+    ctx.save(); ctx.beginPath(); ctx.arc(n.x, n.y, r+7, 0, Math.PI*2);
+    ctx.strokeStyle = glowCol+(0.3*gl)+')';
+    ctx.lineWidth = 1.2; glow(glowCol+'1)', 16*gl); ctx.stroke(); ng(); ctx.restore();
+  }
+  // Fill
+  ctx.save(); ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+  ctx.fillStyle = `rgba(${isPorter?'0,119,182':'255,255,255'},${isPorter?0.12:0.04})`;
+  ctx.fill();
+  // Border
+  ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+  ctx.strokeStyle = col; ctx.lineWidth = isPorter ? 1.5 : 1;
+  if(gl>0) glow(glowCol+'1)', 8*gl);
+  ctx.globalAlpha = Math.max(0.15, gl || 0.3);
+  ctx.stroke(); ng(); ctx.globalAlpha = 1;
+  // Inner dot
+  ctx.beginPath(); ctx.arc(n.x, n.y, isPorter?5:3, 0, Math.PI*2);
+  ctx.fillStyle = col; ctx.globalAlpha = Math.max(0.2, gl || 0.4);
+  if(gl>0) glow(glowCol+'1)', 10*gl);
+  ctx.fill(); ng(); ctx.globalAlpha = 1;
+  ctx.restore();
+
+  // Labels
+  ctx.save(); ctx.textAlign = 'center';
+  ctx.font = `600 ${isPorter?13:11}px 'Plus Jakarta Sans',sans-serif`;
+  ctx.fillStyle = isPorter
+    ? `rgba(56,189,248,${Math.max(0.4, gl||0.5)})`
+    : `rgba(248,250,252,${Math.max(0.25, gl||0.35)})`;
+  const labelY = n.y - r - 14;
+  ctx.fillText(n.label, n.x, labelY);
+  ctx.font = `400 10px 'Fira Code',monospace`;
+  ctx.fillStyle = isPorter
+    ? `rgba(0,119,182,${Math.max(0.3, (gl||0.3)*0.7)})`
+    : `rgba(100,116,139,${Math.max(0.2, (gl||0.3)*0.6)})`;
+  ctx.fillText(n.sub, n.x, labelY - 16);
+  ctx.restore();
+}
+
+// Draw moving packet
+function drawPacket(x, y, col, glowC) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x,y,4.5,0,Math.PI*2);
+  ctx.fillStyle = col; glow(glowC, 14); ctx.fill();
+  ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2);
+  ctx.fillStyle = col.replace('FF','22'); ctx.fill();
+  ng(); ctx.restore();
+}
+
+function tick() {
+  ctx.clearRect(0,0,W,H);
+  const s = state;
+  const ph = s.ph;
+  const dur = DURS[Math.min(ph, DURS.length-1)];
+  const ep = eio(Math.min(phaseFrame/Math.max(1,dur),1));
+
+  // ── Phase logic ──
+  if(ph===0) { s.humanNodes[0]=1; s.humanPaths[0]=ep; }
+  else if(ph===1) { s.humanPaths[0]=1; s.humanNodes[1]=ep; s.humanPaths[1]=ep; }
+  else if(ph===2) { s.humanPaths[1]=1; s.humanNodes[2]=ep; s.humanPaths[2]=ep; }
+  else if(ph===3) { s.humanPaths[2]=1; s.humanNodes[3]=ep; s.humanPaths[3]=ep; s.humanNodes[4]=ep*0.7; }
+  else if(ph===4) { s.humanPaths[3]=1; s.humanNodes[4]=1; s.porterGlow=ep*0.5; }
+  else if(ph===5) { s.porterGlow=0.5+ep*0.5; s.topConn=ep; }
+  else if(ph===6) { s.agentNodes[0]=ep; s.agentPaths[0]=ep; s.botConn=ep; }
+  else if(ph===7) { s.agentPaths[0]=1; s.agentNodes[1]=ep; s.agentPaths[1]=ep; s.agentNodes[2]=ep*0.8; }
+  else if(ph===8) { s.agentPaths[1]=1; s.agentNodes[2]=1; s.loopT=0; }
+  else if(ph===9) {
+    // Loop packets on both tracks
+    s.loopT = (s.loopT + 0.006) % 1;
+    s.humanPkt = s.loopT;
+    s.agentPkt = (s.loopT + 0.5) % 1; // offset
+  }
+
+  // Advance phase
+  phaseFrame++;
+  if(ph < 9 && phaseFrame >= dur) { s.ph++; phaseFrame=0; }
+
+  // Auto-restart after full loop
+  if(ph===9 && s.loopT > 0.97 && phaseFrame > 160) {
+    setTimeout(replay, 1000);
+    return;
+  }
+
+  const hN = L.human;
+  const aN = L.agent;
+  const pN = L.porter;
+
+  // ── Draw guide rails (ghost) ──
+  for(let i=0;i<4;i++) drawLine(hN[i].x,hN[i].y,hN[i+1].x,hN[i+1].y,1,'rgba(255,255,255,0.04)',1,0);
+  for(let i=0;i<2;i++) drawLine(aN[i].x,aN[i].y,aN[i+1].x,aN[i+1].y,1,'rgba(255,255,255,0.04)',1,0);
+
+  // ── Draw human paths ──
+  const hCol = C.human;
+  drawLine(hN[0].x,hN[0].y,hN[1].x,hN[1].y,s.humanPaths[0],hCol,1.2,4);
+  drawLine(hN[1].x,hN[1].y,hN[2].x,hN[2].y,s.humanPaths[1],hCol,1.2,4);
+  drawLine(hN[2].x,hN[2].y,hN[3].x,hN[3].y,s.humanPaths[2],hCol,1.2,4);
+  drawLine(hN[3].x,hN[3].y,hN[4].x,hN[4].y,s.humanPaths[3],hCol,1.2,4);
+
+  // ── Draw agentic paths (cyan, glowing) ──
+  drawLine(aN[0].x,aN[0].y,aN[1].x,aN[1].y,s.agentPaths[0],C.agent,2,14);
+  drawLine(aN[1].x,aN[1].y,aN[2].x,aN[2].y,s.agentPaths[1],C.agent,2,14);
+
+  // ── Porter connector lines (dashed, from porter to both flows) ──
+  if(s.topConn>0){
+    const cpx = (pN.x + hN[2].x)/2;
+    const cpy = lerp(pN.y, hN[2].y, s.topConn);
+    ctx.save(); ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(pN.x, pN.y);
+    ctx.quadraticCurveTo(pN.x, lerp(pN.y,hN[2].y,0.5), hN[2].x, lerp(pN.y,hN[2].y,s.topConn));
+    ctx.strokeStyle=`rgba(0,119,182,${0.35*s.topConn})`; ctx.lineWidth=1;
+    glow('rgba(0,119,182,0.5)',6); ctx.stroke(); ng();
+    ctx.setLineDash([]); ctx.restore();
+  }
+  if(s.botConn>0){
+    ctx.save(); ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(pN.x, pN.y);
+    ctx.quadraticCurveTo(pN.x, lerp(pN.y,aN[1].y,0.5), aN[1].x, lerp(pN.y,aN[1].y,s.botConn));
+    ctx.strokeStyle=`rgba(0,229,255,${0.35*s.botConn})`; ctx.lineWidth=1;
+    glow('rgba(0,229,255,0.5)',8); ctx.stroke(); ng();
+    ctx.setLineDash([]); ctx.restore();
+  }
+
+  // ── Moving packets ──
+  if(s.humanPkt>=0 && ph===9){
+    // Human packet: travels across all 4 segments
+    const t = s.humanPkt;
+    const total = 4;
+    const seg = Math.min(Math.floor(t*total), total-1);
+    const segT = (t*total) - seg;
+    const n1 = hN[seg], n2 = hN[seg+1] || hN[total];
+    const px = lerp(n1.x,n2.x,segT);
+    const py = n1.y;
+    drawPacket(px,py,'rgba(148,163,184,0.9)','rgba(148,163,184,1)');
+  }
+  if(s.agentPkt>=0 && ph===9){
+    const t = s.agentPkt;
+    const total = 2;
+    const seg = Math.min(Math.floor(t*total), total-1);
+    const segT = (t*total) - seg;
+    const n1 = aN[seg], n2 = aN[seg+1] || aN[total-1];
+    const px = lerp(n1.x,n2.x,segT);
+    const py = n1.y;
+    drawPacket(px,py,'rgba(0,229,255,0.95)','rgba(0,229,255,1)');
+  }
+
+  // ── Row labels ──
+  ctx.save();
+
+  // Human flow label — above the top row
+  ctx.textAlign = 'left';
+  ctx.font = `600 11px 'Fira Code',monospace`;
+  ctx.letterSpacing = '0.1em';
+
+  // Label background pill for readability
+  const hlLabel = 'HUMAN FLOW';
+  const alLabel = 'AGENTIC FLOW';
+  const labelPad = { x: 12, y: 6 };
+
+  // Human flow label
+  ctx.font = `600 11px 'Fira Code',monospace`;
+  const hlW = ctx.measureText(hlLabel).width + labelPad.x * 2;
+  const hlY = L.topY - 78;  // well above nodes and their subtitles
+  ctx.fillStyle = 'rgba(148,163,184,0.08)';
+  ctx.beginPath();
+  ctx.roundRect(8, hlY - 14, hlW, 22, 4);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,214,230,0.75)';
+  ctx.fillText(hlLabel, 8 + labelPad.x, hlY + 3);
+
+  // Agentic flow label
+  const alW = ctx.measureText(alLabel).width + labelPad.x * 2;
+  const alY = L.botY + 62;  // below agentic nodes
+  ctx.fillStyle = 'rgba(0,229,255,0.06)';
+  ctx.beginPath();
+  ctx.roundRect(8, alY - 14, alW, 22, 4);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,229,255,0.2)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(0,229,255,0.75)';
+  glow('rgba(0,229,255,0.4)', 6);
+  ctx.fillText(alLabel, 8 + labelPad.x, alY + 3);
+  ng();
+
+  ctx.restore();
+
+  // Separator line
+  ctx.save();
+  ctx.beginPath(); ctx.moveTo(0, H*0.5); ctx.lineTo(W, H*0.5);
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+  ctx.setLineDash([4,8]); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+
+  // ── Draw nodes ──
+  hN.forEach((n,i) => drawNode(n, C.human, 'rgba(148,163,184,', s.humanNodes[i]||0, 18, false));
+  aN.forEach((n,i) => {
+    const isFinal = i===2;
+    const col  = isFinal ? C.agent : C.agent;
+    drawNode(n, col, 'rgba(0,229,255,', s.agentNodes[i]||0, 20, false);
+  });
+  drawNode(pN, C.porter, 'rgba(0,119,182,', s.porterGlow||0, 28, true);
+
+  raf = requestAnimationFrame(tick);
+}
+
+function replay() {
+  cancelAnimationFrame(raf);
+  resetState();
+  tick();
+}
+
+window.replayJourney = replay;
+
+// Scroll trigger
+const obs = new IntersectionObserver(e => {
+  e.forEach(x => { if(x.isIntersecting){ replay(); obs.disconnect(); } });
+}, { threshold: 0.3 });
+
+window.addEventListener('load', () => {
+  resize();
+  obs.observe(canvas);
+  window.addEventListener('resize', () => { resize(); });
+});
+  })();
+
+    // ══════ 6. SCROLL REVEAL ══════
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ══════ A. PROBLEM — staggered cards + counter ══════
+  (function() {
+    const cards = document.querySelectorAll('.problem-card-anim');
+    const counters = [
+      { el: document.getElementById('pc1'), label: '% AI-mediated journeys', max: 62 },
+      { el: document.getElementById('pc2'), label: '% purchase decisions bypassing ads', max: 58 },
+      { el: document.getElementById('pc3'), label: '% of intent invisible to agencies', max: 71 },
+      { el: document.getElementById('pc4'), label: '% signal loss in agentic model', max: 67 },
+    ];
+
+    function animateCounter(el, label, max, duration) {
+      if (!el) return;
+      let start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / duration, 1);
+        const val = Math.round(p * max);
+        el.textContent = val + '% ' + label;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          cards.forEach((card, i) => {
+            const delay = parseInt(card.dataset.delay || 0);
+            setTimeout(() => {
+              card.classList.add('active');
+              if (counters[i] && counters[i].el) {
+                animateCounter(counters[i].el, counters[i].label, counters[i].max, 1200);
+              }
+            }, delay);
+          });
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+
+    if (cards.length) obs.observe(cards[0].closest('.problem-grid') || cards[0]);
+  })();
+
+  // ══════ B. FEATURES — circuit line drawing ══════
+  (function() {
+    const wrap = document.getElementById('circuit-wrap');
+    const line = document.getElementById('circuit-line');
+    const dots = [
+      document.getElementById('cd1'),
+      document.getElementById('cd2'),
+      document.getElementById('cd3'),
+    ];
+    if (!wrap || !line) return;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          line.classList.add('active');
+          dots.forEach((d, i) => {
+            if (d) setTimeout(() => d.classList.add('active'), 400 + i * 300);
+          });
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+
+    obs.observe(wrap);
+  })();
+
+  // ══════ C. PLATFORMS — vertical glow line ══════
+  (function() {
+    const divider = document.getElementById('platforms-divider');
+    if (!divider) return;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          divider.classList.add('active');
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    obs.observe(divider.parentElement);
+  })();
+
+  // ══════ D. EARLY ACCESS — spots countdown ══════
+  (function() {
+    const el = document.getElementById('spots-num');
+    if (!el) return;
+    let current = 47;
+    let started = false;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !started) {
+          started = true;
+          // Slow tick down every 3-7 seconds
+          function tick() {
+            if (current <= 31) return;
+            const delay = 3000 + Math.random() * 4000;
+            setTimeout(() => {
+              current--;
+              el.textContent = current;
+              el.style.transition = 'opacity 0.2s';
+              el.style.opacity = '0.5';
+              setTimeout(() => el.style.opacity = '1', 200);
+              tick();
+            }, delay);
+          }
+          tick();
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    obs.observe(el);
+  })();
+
+  // ══════ E. EMAIL CAPTURE — typing placeholder ══════
+  (function() {
+    const emailInput = document.querySelector('#email-capture input[type="email"]');
+    if (!emailInput) return;
+    let started = false;
+
+    const PHRASES = [
+      'cmo@retailagency.com',
+      'media@holdinggroup.com',
+      'hello@youragency.com',
+    ];
+    let phraseIdx = 0;
+
+    function typePhrase(phrase, cb) {
+      let i = 0;
+      emailInput.placeholder = '';
+      // Add cursor
+      function addChar() {
+        if (i <= phrase.length) {
+          emailInput.placeholder = phrase.slice(0, i) + '|';
+          i++;
+          setTimeout(addChar, 55 + Math.random() * 30);
+        } else {
+          emailInput.placeholder = phrase;
+          setTimeout(cb, 1800);
+        }
+      }
+      addChar();
+    }
+
+    function erasePhrase(phrase, cb) {
+      let i = phrase.length;
+      function removeChar() {
+        if (i >= 0) {
+          emailInput.placeholder = phrase.slice(0, i) + (i > 0 ? '|' : '');
+          i--;
+          setTimeout(removeChar, 35);
+        } else {
+          emailInput.placeholder = '';
+          setTimeout(cb, 400);
+        }
+      }
+      removeChar();
+    }
+
+    function loop() {
+      const phrase = PHRASES[phraseIdx % PHRASES.length];
+      typePhrase(phrase, () => {
+        erasePhrase(phrase, () => {
+          phraseIdx++;
+          loop();
+        });
+      });
+    }
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !started) {
+          started = true;
+          setTimeout(loop, 600);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+
+    obs.observe(emailInput);
+  })();
+
+  // ══════ 7. BENTO MOUSE TRACKING ══════
+  document.querySelectorAll('.bento').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+
+  // ══════ 8. EMAIL FORM ══════
+  function handleSubmit(btn) {
+    const inputs = btn.closest('div').querySelectorAll('input');
+    const name    = inputs[0].value.trim();
+    const email   = inputs[1].value.trim();
+    const company = inputs[2].value.trim();
+
+    if (!name || !email || !company) {
+      inputs.forEach(i => {
+        if (!i.value.trim()) {
+          i.style.borderColor = 'rgba(220,38,38,0.5)';
+          setTimeout(() => i.style.borderColor = '', 2000);
+        }
+      });
+      return;
+    }
+
+    btn.textContent = '✓ Request received';
+    btn.style.background = '#16a34a';
+    btn.style.pointerEvents = 'none';
+    inputs.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; });
+  }
+
+  document.querySelectorAll('.email-input').forEach(input => {
+    input.addEventListener('focus', () => { input.style.borderColor = 'rgba(0,119,182,0.5)'; });
+    input.addEventListener('blur',  () => { input.style.borderColor = 'rgba(255,255,255,0.08)'; });
+  });
+</script>
+</body>
+</html>
