@@ -62,10 +62,10 @@
     --glass:       rgba(255,255,255,0.60);
     --h:           #0F172A;
     --body:        #475569;
-    --mono:        #64748B;
+    --mono:        #4B5563;
     --border:      rgba(15,23,42,0.08);
     --divider:     rgba(15,23,42,0.04);
-    --indigo:      #4F46E5;
+    --indigo:      #0077B6;
     --indigo-dark: #4338CA;
   }
 
@@ -221,6 +221,7 @@
 
     /* Founders 2-col → 1-col */
     .founders-grid { grid-template-columns: 1fr !important; }
+    .section-header-grid { gap: 40px !important; }
 
     /* Early access 2-col → 1-col */
     .early-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
@@ -257,8 +258,15 @@
     .hero-stat-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; padding-bottom: 20px !important; border-bottom: 1px solid var(--border) !important; }
     .hero-stat-item:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
 
+    /* ── SECTION HEADER GRIDS (all 2-col headers) ── */
+    .section-header-grid { grid-template-columns: 1fr !important; gap: 24px !important; margin-bottom: 36px !important; }
+    .section-header-grid > p { padding-top: 0 !important; }
+    .ecosystem-header > div:last-child { padding-top: 0 !important; }
+    .founders-header > div:last-child { padding-top: 0 !important; }
+
     /* ── PROBLEM ── */
     .problem-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .problem-divider-line { display: none !important; }
 
     /* ── JOURNEY (dark section) ── */
     .journey-header { grid-template-columns: 1fr !important; gap: 20px !important; margin-bottom: 36px !important; }
@@ -271,6 +279,9 @@
     /* ── PLATFORMS ── */
     .platforms-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
     .platforms-section { padding: 64px 0 !important; }
+    .platforms-divider-line { display: none !important; }
+    #platforms .wrap > div:first-child { grid-template-columns: 1fr !important; gap: 16px !important; }
+    #platforms .wrap > div:first-child > div:last-child { padding-top: 0 !important; }
 
     /* ── EARLY ACCESS ── */
     .early-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
@@ -278,6 +289,8 @@
 
     /* ── FOUNDERS ── */
     .founders-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    #founders .wrap > div:first-child { grid-template-columns: 1fr !important; gap: 16px !important; }
+    #founders .wrap > div:first-child > div:last-child { padding-top: 0 !important; }
 
     /* ── EMAIL CAPTURE ── */
     .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
@@ -351,6 +364,30 @@
   @media(max-width:768px) {
     #mob-menu-btn { display: flex !important; }
     .nav-cta { display: none !important; }
+
+    /* ── PROBLEM 3-col → 1-col ── */
+    .problem-divider-line { display: none !important; }
+    #problem .wrap > div:last-child { grid-template-columns: 1fr !important; gap: 10px !important; }
+    #problem .wrap > div:last-child > div { border-radius: 8px !important; border-top: 1px solid rgba(255,255,255,0.6) !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; border-left: 1px solid rgba(255,255,255,0.45) !important; border-right: 1px solid rgba(255,255,255,0.2) !important; }
+
+    /* ── PROBLEM header 2-col → 1-col ── */
+    #problem .wrap > div:first-child { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 36px !important; }
+
+    /* ── JOURNEY header 2-col → 1-col ── */
+    #journey .wrap > div:first-child { grid-template-columns: 1fr !important; gap: 20px !important; margin-bottom: 36px !important; }
+
+    /* ── WHO IS FOR 4-col → 1-col ── */
+    .platforms-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .platforms-grid > div { border-radius: 8px !important; border: 1px solid rgba(255,255,255,0.06) !important; height: auto !important; }
+
+    /* ── WHO IS FOR header 2-col → 1-col ── */
+    #platforms .wrap > div:first-child { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+    /* ── FAQ ── */
+    #faq .wrap { padding: 0 20px !important; }
+
+    /* ── EMAIL CAPTURE 2-col → 1-col ── */
+    .email-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
   }
 
   /* ── SCROLL REVEAL ── */
@@ -376,8 +413,11 @@
 
   /* ── FOUNDER CARD ── */
   .founder-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: rgba(250,249,246,0.15);
+    border-top: 1px solid rgba(0,119,182,0.35);
+    border-bottom: 1px solid rgba(0,119,182,0.08);
+    border-left: 1px solid rgba(0,119,182,0.25);
+    border-right: 1px solid rgba(0,119,182,0.12);
     border-radius: 8px;
     padding: 32px;
     transition: transform 0.25s;
@@ -413,7 +453,9 @@
     outline: none;
     transition: border-color 0.15s;
   }
-  .email-input::placeholder { color: var(--mono); }
+  .email-input::placeholder { color: #4B5563; }
+  #email-capture .email-input::placeholder { color: #94A3B8; }
+  #email-capture .email-input { color: #F8FAFC !important; }
   .email-input:focus { border-color: var(--indigo); }
 
   /* ── ANIMATED COUNTER ── */
@@ -433,6 +475,8 @@
   }
   .divider-line.visible { transform: scaleX(1); }
 </style>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAwNzdCNiIvPjx0ZXh0IHg9IjE2IiB5PSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjaywgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIyMCIgZmlsbD0iI0ZGRkZGRiI+SDwvdGV4dD48L3N2Zz4=">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDA3N0I2Ii8+PHRleHQgeD0iOTAiIHk9IjkwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjExMCIgZmlsbD0iI0ZGRkZGRiI+SDwvdGV4dD48L3N2Zz4=">
 </head>
 <body>
 
@@ -485,11 +529,10 @@
   <a href="#founders" onclick="toggleMobMenu()">Team</a>
   <a href="#email-capture" class="mob-cta" onclick="toggleMobMenu()">Book a Demo →</a>
 </div>
-<section class="hero-section" style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;position:relative;overflow:hidden;">
+<section class="hero-section" style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;position:relative;overflow:hidden;background:#FAF9F6;">
 
   <!-- Particle canvas: hero — full density -->
   <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
-  <div class="absolute inset-0 grid-bg" style="opacity:0.4;z-index:2;"></div>
 
   <div class="wrap relative z-10" style="padding-top:80px;padding-bottom:80px;">
     <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
@@ -503,13 +546,13 @@
           </span>
         </div>
 
-        <h1 class="h1 anim animate-fadeUp1" style="margin-bottom:24px;">
+        <h1 class="h1 anim animate-fadeUp1" style="margin-bottom:24px;color:#0F172A;">
           The infrastructure<br>
-          <span style="color:var(--indigo);">agentic commerce</span><br>
+          <span style="color:#0077B6;">agentic commerce</span><br>
           runs on.
         </h1>
 
-        <p class="body-lg anim animate-fadeUp2" style="max-width:420px;margin-bottom:40px;">
+        <p class="body-lg anim animate-fadeUp2" style="max-width:420px;margin-bottom:40px;color:#475569;">
           The transition is happening. Be on the right side of it.
         </p>
 
@@ -521,12 +564,12 @@
         </div>
 
         <!-- Built for -->
-        <div class="anim animate-fadeUp4" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--border);">
-          <span style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mono);white-space:nowrap;">Built for</span>
-          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);">Retailers</span>
-          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);">E-Commerce Platforms</span>
-          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);">Ad Agencies</span>
-          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);">Retail Media Networks</span>
+        <div class="anim animate-fadeUp4" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;padding-top:28px;border-top:1px solid var(--border);overflow:hidden;">
+          <span style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mono);white-space:nowrap;flex-shrink:0;">Built for</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">Retailers</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">E-Commerce Platforms</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">Ad Agencies</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">Retail Media Networks</span>
         </div>
 
       </div>
@@ -643,40 +686,82 @@
 </div>
 
 <!-- ══════ PROBLEM ══════ -->
-<section class="section" id="problem">
-  <div class="wrap">
+<section class="section" id="problem" style="background:#FAF9F6;position:relative;overflow:hidden;">
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:64px;">
+  <canvas id="problemDotCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;display:block;"></canvas>
+
+  <div class="wrap" style="position:relative;z-index:2;">
+
+    <div class="section-header-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:64px;">
       <div>
-        <div class="eyebrow" style="margin-bottom:16px;">What's happening now</div>
-        <h2 class="h2" style="margin-bottom:0;line-height:1.1;">The shift is underway.<br>The infrastructure isn't.</h2>
+        <div class="eyebrow" style="margin-bottom:16px;color:#0077B6;">What's happening now</div>
+        <h2 class="h2" style="margin-bottom:0;line-height:1.1;color:#0F172A;">The shift is underway.<br>The infrastructure isn't.</h2>
       </div>
-      <p class="body-lg" style="color:var(--body);padding-top:40px;">AI is changing how products get discovered and purchased. The journey is being compressed. The infrastructure to operate inside it doesn't exist yet.</p>
+      <p class="body-lg" style="color:#475569;padding-top:40px;">AI is changing how products get discovered and purchased. The journey is being compressed. The infrastructure to operate inside it doesn't exist yet.</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">
+    <div style="position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:0;">
 
-      <div style="background:#FFFFFF;border:1px solid rgba(15,23,42,0.12);border-radius:8px 0 0 8px;padding:40px 36px;">
-        <div style="font-size:38px;font-weight:800;color:var(--indigo);letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">01</div>
-        <div style="font-size:18px;font-weight:700;color:var(--h);letter-spacing:-0.02em;margin-bottom:12px;">AI decides what customers buy</div>
-        <p style="font-size:15px;color:var(--body);line-height:1.65;">The agent decides. Search, browse, ads — bypassed before they start.</p>
+      <div class="problem-divider-line" style="position:absolute;top:0;bottom:0;left:calc(33.333%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,119,182,0.5) 30%,rgba(0,119,182,0.5) 70%,transparent);pointer-events:none;z-index:5;"></div>
+      <div class="problem-divider-line" style="position:absolute;top:0;bottom:0;left:calc(66.666%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,119,182,0.5) 30%,rgba(0,119,182,0.5) 70%,transparent);pointer-events:none;z-index:5;"></div>
+
+      <div style="background:rgba(250,249,246,0.15);border-top:1px solid rgba(255,255,255,0.7);border-bottom:1px solid rgba(255,255,255,0.2);border-left:1px solid rgba(255,255,255,0.55);border-right:none;border-radius:8px 0 0 8px;padding:40px 36px;position:relative;z-index:2;">
+        <div style="font-size:38px;font-weight:800;color:#0077B6;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">01</div>
+        <div style="font-size:18px;font-weight:700;color:#0F172A;letter-spacing:-0.02em;margin-bottom:12px;">AI decides what customers buy</div>
+        <p style="font-size:15px;color:#475569;line-height:1.65;">The agent decides. Search, browse, ads — bypassed before they start.</p>
       </div>
 
-      <div style="background:#FFFFFF;border:1px solid rgba(15,23,42,0.12);border-left:none;border-right:none;padding:40px 36px;">
-        <div style="font-size:38px;font-weight:800;color:var(--indigo);letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">02</div>
-        <div style="font-size:18px;font-weight:700;color:var(--h);letter-spacing:-0.02em;margin-bottom:12px;">The signals go dark</div>
-        <p style="font-size:15px;color:var(--body);line-height:1.65;">Intent data stops surfacing. The decision happens in a closed loop. Nobody can see it.</p>
+      <div style="background:rgba(250,249,246,0.1);border-top:1px solid rgba(255,255,255,0.65);border-bottom:1px solid rgba(255,255,255,0.15);border-left:none;border-right:none;padding:40px 36px;position:relative;z-index:2;">
+        <div style="font-size:38px;font-weight:800;color:#0077B6;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">02</div>
+        <div style="font-size:18px;font-weight:700;color:#0F172A;letter-spacing:-0.02em;margin-bottom:12px;">The signals go dark</div>
+        <p style="font-size:15px;color:#475569;line-height:1.65;">Intent data stops surfacing. The decision happens in a closed loop. Nobody can see it.</p>
       </div>
 
-      <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.06);border-radius:0 8px 8px 0;padding:40px 36px;">
-        <div style="font-size:38px;font-weight:800;color:#38BDF8;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">03</div>
-        <div style="font-size:18px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;">The window is now.</div>
+      <div style="background:rgba(0,119,182,0.07);border-top:1px solid rgba(0,119,182,0.3);border-bottom:1px solid rgba(0,119,182,0.08);border-right:1px solid rgba(0,119,182,0.2);border-left:none;border-radius:0 8px 8px 0;padding:40px 36px;position:relative;z-index:2;">
+        <div style="font-size:38px;font-weight:800;color:#0077B6;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">03</div>
+        <div style="font-size:18px;font-weight:700;color:#0F172A;letter-spacing:-0.02em;">The window is now.</div>
       </div>
 
     </div>
 
   </div>
 </section>
+
+<script>
+(function(){
+  const c=document.getElementById('problemDotCanvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  let W,H,pulse=0;
+  const S=28,BASE=[0,100,160],PC=[0,119,182];
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function lerpC(a,b,t){return[Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))];}
+  function resize(){W=c.width=c.parentElement.offsetWidth;H=c.height=c.parentElement.offsetHeight;}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,mx=Math.sqrt(cx*cx+cy*cy);
+    pulse=(pulse+0.004)%1;
+    const sx=(W%S)/2,sy=(H%S)/2;
+    const cols=Math.ceil(W/S)+2,rows=Math.ceil(H/S)+2;
+    for(let r=0;r<rows;r++)for(let cc=0;cc<cols;cc++){
+      const x=sx+cc*S,y=sy+r*S;
+      const norm=Math.sqrt((x-cx)**2+(y-cy)**2)/mx;
+      const mask=Math.pow(Math.max(0,1-norm*1.4),1.2);
+      if(mask<0.01)continue;
+      const wp=norm-pulse;
+      const wave=Math.exp(-(wp*wp)/0.004)*(1-norm*0.7);
+      const alpha=Math.min(lerp(0.18,0.45,1-norm)*mask+wave*0.5*mask,0.75);
+      const col=wave>0.05?lerpC(BASE,PC,Math.min(wave*1.2,1)):BASE;
+      ctx.beginPath();ctx.arc(x,y,1.0+wave*0.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('load',()=>{resize();draw();});
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+</script>
 
 <!-- ══════ JOURNEY ══════ -->
 <section style="background:#07070D;padding:100px 0;position:relative;overflow:hidden;" id="journey">
@@ -689,12 +774,12 @@
   <div class="wrap" style="position:relative;z-index:2;">
 
     <!-- Header: H2 + paragraphs left, statement right -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:64px;">
+    <div class="section-header-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:64px;">
       <div>
         <div class="eyebrow" style="color:var(--indigo);margin-bottom:16px;">How Handpicker Works</div>
         <h2 class="h2" style="color:#F8FAFC;margin-bottom:28px;">Two journeys.<br>One infrastructure.</h2>
-        <p style="font-size:16px;color:#94A3B8;line-height:1.7;margin-bottom:12px;">No profile? Handpicker reads real-time intent and personalises on the spot.</p>
-        <p style="font-size:16px;color:#94A3B8;line-height:1.7;">Have a profile? Handpicker powers a full agentic experience — the agent already knows what you want.</p>
+        <p style="font-size:16px;color:#94A3B8;line-height:1.7;margin-bottom:12px;">No profile? <strong style="color:#CBD5E1;font-weight:700;">Handpicker</strong> reads real-time intent and personalises on the spot.</p>
+        <p style="font-size:16px;color:#94A3B8;line-height:1.7;">Have a profile? <strong style="color:#CBD5E1;font-weight:700;">Handpicker</strong> powers a full agentic experience — the agent already knows what you want.</p>
       </div>
       <div style="display:flex;align-items:center;justify-content:center;height:100%;">
         <div style="border:1px solid rgba(0,119,182,0.25);border-radius:12px;padding:32px 40px;background:rgba(0,119,182,0.06);text-align:center;">
@@ -704,118 +789,19 @@
       </div>
     </div>
 
-    <!-- Diagram -->
-    <div style="position:relative;width:100%;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:visible;background:rgba(255,255,255,0.015);padding:48px 40px;">
-
-      <!-- Tooltip -->
-      <div id="journey-tooltip" style="position:absolute;background:#0F172A;border:1px solid rgba(0,119,182,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#CBD5E1;line-height:1.5;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;max-width:200px;white-space:normal;"></div>
-
-      <!-- Human Flow -->
-      <div style="margin-bottom:40px;">
-        <div style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#64748B;margin-bottom:20px;">Human Flow</div>
-        <div style="display:flex;align-items:center;">
-
-          <div class="j-node" data-tip="Shopper arrives with intent — no prior data, no profile." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#94A3B8" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#64748B;font-family:'Fira Code',monospace;">Shopper</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(148,163,184,0.2);margin-bottom:19px;"></div>
-
-          <div class="j-node" data-tip="Search query fired — raw intent signal captured." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#94A3B8" stroke-width="1.2"/><path d="M11 11l3 3" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#64748B;font-family:'Fira Code',monospace;">Search</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(148,163,184,0.2);margin-bottom:19px;"></div>
-
-          <div class="j-node" data-tip="Browsing behaviour adds context to the intent signal." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#94A3B8" stroke-width="1.2"/><path d="M5 7h6M5 10h4" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#64748B;font-family:'Fira Code',monospace;">Browse</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(148,163,184,0.2);margin-bottom:19px;"></div>
-
-          <div class="j-node" data-tip="Sponsored placements aligned to real-time intent." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h12l-1.5 8H3.5L2 3z" stroke="#94A3B8" stroke-width="1.2" stroke-linejoin="round"/><circle cx="6" cy="14" r="1" fill="#94A3B8"/><circle cx="11" cy="14" r="1" fill="#94A3B8"/></svg>
-            </div>
-            <span style="font-size:11px;color:#64748B;font-family:'Fira Code',monospace;">Ads</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(148,163,184,0.2);margin-bottom:19px;"></div>
-
-          <div class="j-node" data-tip="Right product, right moment. Intent met — purchase made." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2l2 1 1.5 7h7l1.5-6H5" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#64748B;font-family:'Fira Code',monospace;">Purchase</span>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Handpicker node — center, connecting both flows -->
-      <div style="display:flex;justify-content:center;margin-bottom:40px;position:relative;">
-        <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:1px;height:20px;background:linear-gradient(transparent,rgba(0,119,182,0.4));"></div>
-        <div class="j-node" data-tip="Handpicker sits beneath both flows. Real-time personalisation without a profile. Full agentic experience with one." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-          <div style="width:60px;height:60px;border-radius:50%;border:2px solid #0077B6;background:rgba(0,119,182,0.12);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(0,119,182,0.35);transition:box-shadow .2s;">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#0077B6" stroke-width="1.5"/><path d="M7.5 11l2.5 2.5L15 8" stroke="#0077B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <span style="font-size:12px;font-weight:700;color:#0077B6;font-family:'Fira Code',monospace;letter-spacing:0.06em;">HANDPICKER</span>
-        </div>
-        <div style="position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);width:1px;height:20px;background:linear-gradient(rgba(0,119,182,0.4),transparent);"></div>
-      </div>
-
-      <!-- Agentic Flow -->
-      <div>
-        <div style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#38BDF8;margin-bottom:20px;">Agentic Flow</div>
-        <div style="display:flex;align-items:center;max-width:420px;">
-
-          <div class="j-node" data-tip="Customer has a full purchase history and profile. The agent knows who they are." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(56,189,248,0.5);background:rgba(56,189,248,0.07);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#38BDF8" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#38BDF8;font-family:'Fira Code',monospace;">Customer</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(56,189,248,0.3);margin-bottom:19px;max-width:120px;"></div>
-
-          <div class="j-node" data-tip="AI agent acts on behalf of the customer — searches, filters, decides." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(56,189,248,0.5);background:rgba(56,189,248,0.07);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#38BDF8" stroke-width="1.2"/><path d="M6 8l2 2 3-3" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#38BDF8;font-family:'Fira Code',monospace;">Agent</span>
-          </div>
-
-          <div style="flex:1;height:1px;background:rgba(56,189,248,0.3);margin-bottom:19px;max-width:120px;"></div>
-
-          <div class="j-node" data-tip="Purchase decision made. No browse, no search, no ads — Handpicker ensured the right product was there." style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;">
-            <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(56,189,248,0.5);background:rgba(56,189,248,0.07);display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s;">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span style="font-size:11px;color:#38BDF8;font-family:'Fira Code',monospace;">Decision</span>
-          </div>
-
-        </div>
-      </div>
-
+    <!-- Diagram: animated canvas -->
+    <div style="position:relative;width:100%;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.015);">
+      <canvas id="journey-canvas" style="display:block;width:100%;"></canvas>
     </div>
 
-    <div style="display:flex;align-items:center;gap:28px;margin-top:20px;">
+    <div style="display:flex;align-items:center;gap:28px;margin-top:20px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:8px;font-family:'Fira Code',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;">
         <div style="width:8px;height:8px;border-radius:50%;background:#94A3B8;"></div>
-        <span style="color:#94A3B8;">Human Flow — no profile, intent-based personalisation</span>
+        <span style="color:#94A3B8;">Human Flow — no profile, intent-based</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-family:'Fira Code',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;">
-        <div style="width:8px;height:8px;border-radius:50%;background:#00E5FF;box-shadow:0 0 6px #00E5FF;"></div>
-        <span style="color:#38BDF8;">Agentic Flow — profile-driven, agent decides</span>
+        <div style="width:8px;height:8px;border-radius:50%;background:#38BDF8;box-shadow:0 0 6px #38BDF8;"></div>
+        <span style="color:#38BDF8;">Agentic Flow — profile-driven</span>
       </div>
     </div>
   </div>
@@ -823,104 +809,329 @@
 
 <script>
 (function(){
-  const tooltip = document.getElementById('journey-tooltip');
-  document.querySelectorAll('.j-node').forEach(node => {
-    node.addEventListener('mouseenter', function(e) {
-      tooltip.textContent = this.dataset.tip;
-      tooltip.style.opacity = '1';
-      const circle = this.querySelector('div');
-      if(circle) { circle.style.borderColor = '#0077B6'; circle.style.boxShadow = '0 0 12px rgba(0,119,182,0.4)'; }
-    });
-    node.addEventListener('mousemove', function(e) {
-      const wrap = tooltip.closest('section') || document.body;
-      const rect = node.closest('[style*="padding:48px"]').getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-      tooltip.style.top  = (e.clientY - rect.top  - 40) + 'px';
-    });
-    node.addEventListener('mouseleave', function() {
-      tooltip.style.opacity = '0';
-      const circle = this.querySelector('div');
-      if(circle) { circle.style.borderColor = ''; circle.style.boxShadow = ''; }
-    });
-  });
+  const canvas = document.getElementById('journey-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, raf, step=0, progress=0, wait=0;
+  const HUMAN='#94A3B8', AGENTIC='#38BDF8', HP='#0077B6', OUT='#34D399';
+  let litNodes={}, litLines=[];
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth || 800;
+    // Height scales proportionally — taller on mobile for readability
+    H = canvas.height = W < 500 ? Math.round(W * 1.1) : W < 700 ? Math.round(W * 0.65) : 380;
+    canvas.style.height = H + 'px';
+    buildNodes();
+  }
+
+  // Layout: Human flow top-left → converge into HP center-right → Outcome far right
+  let N={};
+  function buildNodes() {
+    const mobile = W < 500;
+    const hY = H*0.22;
+    const aY = H*0.78;
+    const hpX = mobile ? W*0.72 : W*0.68;
+    const hpY = H*0.5;
+    const outX = mobile ? W*0.93 : W*0.90;
+    const hPad = W*0.05;
+    const hEnd = hpX - W*0.08;
+    const hSpan = hEnd - hPad;
+
+    N = {
+      h0: {x: hPad,              y: hY, label: mobile?'Shopper':'Shopper',    col:HUMAN},
+      h1: {x: hPad+hSpan*0.25,  y: hY, label: mobile?'Search':'Search',      col:HUMAN},
+      h2: {x: hPad+hSpan*0.5,   y: hY, label: mobile?'Browse':'Browse',      col:HUMAN},
+      h3: {x: hPad+hSpan*0.75,  y: hY, label: mobile?'Ads':'Ads',            col:HUMAN},
+      a0: {x: hPad,              y: aY, label: mobile?'Customer':'Customer',  col:AGENTIC},
+      a1: {x: hPad+hSpan*0.4,   y: aY, label: mobile?'Agent':'Agent',        col:AGENTIC},
+      a2: {x: hPad+hSpan*0.8,   y: aY, label: mobile?'Decision':'Decision',  col:AGENTIC},
+      hp: {x: hpX, y: hpY, label:'HANDPICKER', col:HP, big:true},
+      out:{x: outX, y: hpY, label:'Purchase', col:OUT},
+    };
+  }
+
+  // Steps: animate human flow, then agentic, then both converge to HP, then HP→outcome
+  const STEPS = [
+    {from:'h0', to:'h1', col:HUMAN},
+    {from:'h1', to:'h2', col:HUMAN},
+    {from:'h2', to:'h3', col:HUMAN},
+    {from:'a0', to:'a1', col:AGENTIC},   // agentic starts while human finishing
+    {from:'h3', to:'hp', col:HUMAN},     // human converges into HP
+    {from:'a1', to:'a2', col:AGENTIC},
+    {from:'a2', to:'hp', col:AGENTIC},   // agentic converges into HP
+    {activate:'hp'},
+    {from:'hp', to:'out', col:HP},       // HP → outcome
+    {done:true}
+  ];
+
+  function reset(){
+    step=0; progress=0; wait=0;
+    litNodes={h0:true, a0:true};
+    litLines=[];
+  }
+
+  function drawNode(k) {
+    const n=N[k]; if(!n) return;
+    const mobile = W < 500;
+    const r = n.big ? (mobile?20:28) : (mobile?14:20);
+    const lit = litNodes[k];
+    ctx.save();
+    if(lit){ctx.shadowColor=n.col; ctx.shadowBlur=n.big?32:12;}
+    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
+    if(lit){
+      if(n.big) ctx.fillStyle='rgba(0,119,182,0.18)';
+      else if(n.col===AGENTIC) ctx.fillStyle='rgba(56,189,248,0.12)';
+      else if(n.col===OUT) ctx.fillStyle='rgba(52,211,153,0.15)';
+      else ctx.fillStyle='rgba(148,163,184,0.1)';
+      ctx.fill();
+    }
+    ctx.strokeStyle = lit ? n.col : 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = n.big ? 2 : 1.5;
+    ctx.stroke();
+    ctx.shadowBlur=0;
+    const fontSize = mobile ? (n.big?9:9) : (n.big?11:11);
+    ctx.fillStyle = lit ? n.col : 'rgba(255,255,255,0.15)';
+    ctx.font = n.big ? `700 ${fontSize}px 'Fira Code',monospace` : `400 ${fontSize}px 'Fira Code',monospace`;
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(n.label, n.x, n.y+r+6);
+    ctx.restore();
+  }
+
+  function drawLine(from, to, prog, col) {
+    const a=N[from], b=N[to]; if(!a||!b) return;
+    const mobile = W < 500;
+    const rA=a.big?(mobile?20:28):(mobile?14:20);
+    const rB=b.big?(mobile?20:28):(mobile?14:20);
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const nx=dx/dist, ny=dy/dist;
+    const x1=a.x+nx*rA, y1=a.y+ny*rA;
+    const x2=a.x+nx*(rA+(dist-rA-rB)*prog);
+    const y2=a.y+ny*(rA+(dist-rA-rB)*prog);
+    ctx.save();
+    ctx.shadowColor=col; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+    // moving dot
+    if(prog<1 && prog>0){
+      ctx.beginPath(); ctx.arc(x2,y2,3.5,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.fill();
+    }
+    ctx.shadowBlur=0; ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+
+    // Dim background lines
+    const hKeys=['h0','h1','h2','h3'];
+    for(let i=0;i<hKeys.length-1;i++){
+      const a=N[hKeys[i]], b=N[hKeys[i+1]];
+      ctx.save(); ctx.beginPath();
+      ctx.moveTo(a.x+20,a.y); ctx.lineTo(b.x-20,b.y);
+      ctx.strokeStyle='rgba(148,163,184,0.07)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
+    }
+    // dim h3→hp
+    {const a=N.h3,b=N.hp;
+    ctx.save();ctx.beginPath();ctx.moveTo(a.x+20,a.y);ctx.lineTo(b.x-28,b.y);
+    ctx.strokeStyle='rgba(148,163,184,0.07)';ctx.lineWidth=1;ctx.stroke();ctx.restore();}
+
+    const aKeys=['a0','a1','a2'];
+    for(let i=0;i<aKeys.length-1;i++){
+      const a=N[aKeys[i]], b=N[aKeys[i+1]];
+      ctx.save(); ctx.beginPath();
+      ctx.moveTo(a.x+20,a.y); ctx.lineTo(b.x-20,b.y);
+      ctx.strokeStyle='rgba(56,189,248,0.07)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
+    }
+    // dim a2→hp
+    {const a=N.a2,b=N.hp;
+    ctx.save();ctx.beginPath();ctx.moveTo(a.x+20,a.y);ctx.lineTo(b.x-28,b.y);
+    ctx.strokeStyle='rgba(56,189,248,0.07)';ctx.lineWidth=1;ctx.stroke();ctx.restore();}
+
+    // dim hp→out
+    {const a=N.hp,b=N.out;
+    ctx.save();ctx.beginPath();ctx.moveTo(a.x+28,a.y);ctx.lineTo(b.x-20,b.y);
+    ctx.strokeStyle='rgba(52,211,153,0.07)';ctx.lineWidth=1;ctx.stroke();ctx.restore();}
+
+    // Lit completed lines
+    litLines.forEach(l => drawLine(l.from, l.to, 1, l.col));
+
+    // Active line
+    const cur = STEPS[step];
+    if(cur && cur.from) drawLine(cur.from, cur.to, progress, cur.col);
+
+    // HP pulse when lit
+    if(litNodes.hp) {
+      const p = Math.sin(Date.now()*0.003)*0.5+0.5;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(N.hp.x, N.hp.y, 28+p*12, 0, Math.PI*2);
+      ctx.strokeStyle=`rgba(0,119,182,${0.1+p*0.18})`; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.restore();
+    }
+
+    // Flow labels
+    ctx.save();
+    ctx.font=`400 10px 'Fira Code',monospace`; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(148,163,184,0.5)'; ctx.textAlign='left';
+    ctx.fillText('HUMAN FLOW', N.h0.x, N.h0.y - 48);
+    ctx.fillStyle='rgba(56,189,248,0.5)';
+    ctx.fillText('AGENTIC FLOW', N.a0.x, N.a0.y - 48);
+    ctx.restore();
+
+    // All nodes
+    ['h0','h1','h2','h3','hp','a0','a1','a2','out'].forEach(k => drawNode(k));
+  }
+
+  function tick() {
+    const cur = STEPS[step];
+    if(cur && cur.done){ wait++; if(wait>90) reset(); draw(); raf=requestAnimationFrame(tick); return; }
+    if(wait<0){ wait++; draw(); raf=requestAnimationFrame(tick); return; }
+
+    if(cur && cur.activate) {
+      litNodes[cur.activate]=true;
+      step++; wait=-20;
+    } else if(cur && cur.from) {
+      progress += 0.02;
+      if(progress >= 1) {
+        litNodes[cur.to]=true; litNodes[cur.from]=true;
+        litLines.push({from:cur.from, to:cur.to, col:cur.col});
+        step++; progress=0; wait=-8;
+      }
+    }
+    draw(); raf=requestAnimationFrame(tick);
+  }
+
+  const obs = new IntersectionObserver(e=>{
+    e.forEach(x=>{ if(x.isIntersecting){ resize(); reset(); tick(); obs.disconnect(); }});
+  }, {threshold:0.3});
+  obs.observe(canvas);
+  window.addEventListener('resize', ()=>resize());
 })();
 </script>
 
 <!-- ══════ PLATFORMS ══════ -->
-<section class="section platforms-section" style="background:#0F172A;" id="platforms">
-  <div class="wrap">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:52px;">
+<section class="section platforms-section" style="background:#0F172A;position:relative;overflow:hidden;" id="platforms">
+
+  <!-- Pulsing dot background canvas -->
+  <canvas id="forWhoWaveCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;display:block;"></canvas>
+  <!-- Center glow blob -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(0,119,182,0.12) 0%,transparent 60%);pointer-events:none;z-index:1;"></div>
+
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div class="section-header-grid ecosystem-header" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:52px;">
       <div>
-        <div class="eyebrow" style="color:#0077B6;margin-bottom:16px;">Who Handpicker Is For</div>
-        <h2 class="h2" style="color:#F8FAFC;margin-bottom:20px;">Built for everyone<br>in the commerce chain.</h2>
-        <p style="font-size:17px;color:#94A3B8;line-height:1.7;max-width:420px;">From the retailer that needs smarter discovery, to the agency that needs to stay in the room.</p>
+        <div class="eyebrow" style="color:#0077B6;margin-bottom:16px;">The Ecosystem</div>
+        <h2 class="h2" style="color:#F8FAFC;margin-bottom:20px;">The infrastructure that keeps the entire commerce chain in the room.</h2>
+        <p style="font-size:17px;color:#94A3B8;line-height:1.7;max-width:420px;">From the platform capturing intent, to the agency defending its margins.</p>
       </div>
-      <div style="display:flex;align-items:center;padding-top:8px;">
-        <p style="font-size:18px;color:#94A3B8;line-height:1.7;border-left:2px solid rgba(0,119,182,0.4);padding-left:20px;">The agentic commerce shift doesn't affect one player — it affects the entire chain. Handpicker is the infrastructure that keeps all of them in the room.</p>
+      <div style="padding-top:56px;">
+        <p style="font-size:17px;color:#94A3B8;line-height:1.7;">The shift to agentic commerce is rewriting how purchase decisions are made. <strong style="color:#F8FAFC;font-weight:700;">Handpicker</strong> ensures every player in the chain stays relevant inside the new model.</p>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;" class="platforms-grid">
+    <div style="position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:0;" class="platforms-grid">
+
+      <!-- Electric blue vertical dividers with gradient fade -->
+      <div class="platforms-divider-line" style="position:absolute;top:0;bottom:0;left:calc(25%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
+      <div class="platforms-divider-line" style="position:absolute;top:0;bottom:0;left:calc(50%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
+      <div class="platforms-divider-line" style="position:absolute;top:0;bottom:0;left:calc(75%);width:1px;background:linear-gradient(180deg,transparent,rgba(0,200,255,0.5) 30%,rgba(0,200,255,0.5) 70%,transparent);box-shadow:0 0 8px rgba(0,200,255,0.3);pointer-events:none;z-index:3;"></div>
 
       <!-- 1. Retailers -->
-      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(0,119,182,0.08);border:1px solid rgba(0,119,182,0.2);border-radius:8px 0 0 8px;padding:28px 24px;cursor:pointer;transition:background .2s;height:220px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(0,119,182,0.08);border:1px solid rgba(0,119,182,0.2);border-right:none;border-radius:8px 0 0 8px;padding:28px 24px;cursor:pointer;transition:background .2s;height:230px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2;">
         <div>
           <div style="font-family:'Fira Code',monospace;font-size:10px;color:#38BDF8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Primary</div>
           <div style="font-size:17px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:8px;">Retailers</div>
           <p class="who-preview" style="font-size:13px;color:#CBD5E1;line-height:1.6;transition:opacity .2s;">Smarter discovery for every customer — with or without a profile.</p>
           <p class="who-detail" style="font-size:13px;color:#94A3B8;line-height:1.6;">More conversions, fewer abandoned journeys. Works across both human browse and agentic purchase flows from day one.</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-          <span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;" class="who-hint">+ more</span>
-          <span class="who-chevron" style="color:rgba(255,255,255,0.2);font-size:11px;transition:transform .3s;">▾</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:'Fira Code',monospace;font-size:12px;color:#94A3B8;letter-spacing:0.06em;" class="who-hint">+ more</span>
+          <span class="who-chevron" style="color:#94A3B8;font-size:16px;line-height:1;transition:transform .3s;">▾</span>
         </div>
       </div>
 
       <!-- 2. E-Commerce Platforms -->
-      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;padding:28px 24px;cursor:pointer;transition:background .2s;height:220px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;padding:28px 24px;cursor:pointer;transition:background .2s;height:230px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2;">
         <div>
           <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Platforms</div>
           <div style="font-size:17px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:8px;">E-Commerce Platforms</div>
           <p class="who-preview" style="font-size:13px;color:#CBD5E1;line-height:1.6;">Capture intent at the moment of decision.</p>
           <p class="who-detail" style="font-size:13px;color:#94A3B8;line-height:1.6;">Power a retail media offering that agencies want to buy into. Make inventory smarter, not just bigger.</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-          <span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;" class="who-hint">+ more</span>
-          <span class="who-chevron" style="color:rgba(255,255,255,0.2);font-size:11px;transition:transform .3s;">▾</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:'Fira Code',monospace;font-size:12px;color:#94A3B8;letter-spacing:0.06em;" class="who-hint">+ more</span>
+          <span class="who-chevron" style="color:#94A3B8;font-size:16px;line-height:1;transition:transform .3s;">▾</span>
         </div>
       </div>
 
       <!-- 3. Ad Agencies -->
-      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;padding:28px 24px;cursor:pointer;transition:background .2s;height:220px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-right:none;padding:28px 24px;cursor:pointer;transition:background .2s;height:230px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2;">
         <div>
           <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Agencies</div>
           <div style="font-size:17px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:8px;">Ad Agencies</div>
           <p class="who-preview" style="font-size:13px;color:#CBD5E1;line-height:1.6;">Stay relevant when AI mediates the purchase.</p>
           <p class="who-detail" style="font-size:13px;color:#94A3B8;line-height:1.6;">Keep targeting precision and campaign optimisation intact. Access the signals that exist inside the agentic journey.</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-          <span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;" class="who-hint">+ more</span>
-          <span class="who-chevron" style="color:rgba(255,255,255,0.2);font-size:11px;transition:transform .3s;">▾</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:'Fira Code',monospace;font-size:12px;color:#94A3B8;letter-spacing:0.06em;" class="who-hint">+ more</span>
+          <span class="who-chevron" style="color:#94A3B8;font-size:16px;line-height:1;transition:transform .3s;">▾</span>
         </div>
       </div>
 
       <!-- 4. Retail Media Networks -->
-      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-radius:0 8px 8px 0;padding:28px 24px;cursor:pointer;transition:background .2s;height:220px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="who-card" onclick="toggleWho(this)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:none;border-radius:0 8px 8px 0;padding:28px 24px;cursor:pointer;transition:background .2s;height:230px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2;">
         <div>
           <div style="font-family:'Fira Code',monospace;font-size:10px;color:#0077B6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Networks</div>
           <div style="font-size:17px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:8px;">Retail Media Networks</div>
           <p class="who-preview" style="font-size:13px;color:#CBD5E1;line-height:1.6;">Make inventory smarter. Attract and retain agency spend.</p>
           <p class="who-detail" style="font-size:13px;color:#94A3B8;line-height:1.6;">Align placements to real customer intent — not just available slots. Become the network agencies prefer.</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-          <span style="font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;" class="who-hint">+ more</span>
-          <span class="who-chevron" style="color:rgba(255,255,255,0.2);font-size:11px;transition:transform .3s;">▾</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:'Fira Code',monospace;font-size:12px;color:#94A3B8;letter-spacing:0.06em;" class="who-hint">+ more</span>
+          <span class="who-chevron" style="color:#94A3B8;font-size:16px;line-height:1;transition:transform .3s;">▾</span>
         </div>
       </div>
 
     </div>
   </div>
 </section>
+
+<script>
+// Pulsing dot canvas for platforms section
+(function(){
+  const canvas = document.getElementById('forWhoWaveCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, pulse = 0;
+  const SPACING = 28, DOT_R = 0.7;
+  const BASE = [0,100,160], PULSE_C = [0,150,210];
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function lerpC(c1,c2,t){return[Math.round(lerp(c1[0],c2[0],t)),Math.round(lerp(c1[1],c2[1],t)),Math.round(lerp(c1[2],c2[2],t))];}
+  function resize(){const s=canvas.parentElement;W=canvas.width=s.offsetWidth;H=canvas.height=s.offsetHeight;}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,maxD=Math.sqrt(cx*cx+cy*cy);
+    pulse=(pulse+0.005)%1;
+    const sx=(W%SPACING)/2,sy=(H%SPACING)/2;
+    const cols=Math.ceil(W/SPACING)+2,rows=Math.ceil(H/SPACING)+2;
+    for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){
+      const x=sx+c*SPACING,y=sy+r*SPACING;
+      const norm=Math.sqrt((x-cx)**2+(y-cy)**2)/maxD;
+      const mask=Math.pow(Math.max(0,1-norm*1.3),1.5);
+      if(mask<0.01)continue;
+      const wp=norm-pulse;
+      const wave=Math.exp(-(wp*wp)/0.004)*(1-norm*0.8);
+      const alpha=Math.min(lerp(0.08,0.28,1-norm)*mask+wave*0.35*mask,0.65);
+      const col=wave>0.05?lerpC(BASE,PULSE_C,Math.min(wave*1.2,1)):BASE;
+      ctx.beginPath();ctx.arc(x,y,DOT_R+wave*0.4,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;ctx.fill();
+    }}
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('load',()=>{resize();draw();});
+  window.addEventListener('resize',resize);
+})();
+</script>
 
 <script>
 function toggleWho(card) {
@@ -959,22 +1170,28 @@ document.querySelectorAll('.who-preview').forEach(p => {
 </script>
 
 <!-- ══════ EARLY ACCESS ══════ -->
-<section class="section" style="background:var(--surface);text-align:center;" id="early-access">
+<section class="section" style="background:#FFFFFF;text-align:center;" id="early-access">
   <div class="wrap" style="max-width:600px;margin:0 auto;">
-    <div class="eyebrow" style="margin-bottom:16px;">Early Adoption Programme</div>
-    <h2 class="h2" style="margin-bottom:20px;">Be first to build on it.</h2>
-    <p class="body-lg" style="margin-bottom:36px;color:var(--body);">We are selectively onboarding retailers, platforms and agencies. Spots are limited.</p>
+    <div class="eyebrow" style="margin-bottom:16px;color:#0077B6;">Early Adoption Programme</div>
+    <h2 class="h2" style="margin-bottom:20px;color:#0F172A;">Be first to build on it.</h2>
+    <p class="body-lg" style="margin-bottom:36px;color:#475569;">We are selectively onboarding retailers, platforms and agencies. Spots are limited.</p>
     <a href="#email-capture" class="btn-indigo">Book a Demo →</a>
   </div>
 </section>
 
 <!-- ══════ FOUNDERS ══════ -->
-<section class="section" style="background:var(--bg);" id="founders">
-  <div class="wrap">
-    <div style="max-width:640px;margin-bottom:56px;">
-      <div class="eyebrow" style="margin-bottom:16px;">The Team</div>
-      <h2 class="h2" style="margin-bottom:16px;">Built by people who understand commerce, AI, purchasing behaviours, advertising, and problem solving.</h2>
-      <p class="body-lg">Operators, not researchers. We've been on both sides of the problem we're solving.</p>
+<section class="section" style="background:#FAF9F6;position:relative;overflow:hidden;" id="founders">
+
+  <canvas id="teamDotCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;display:block;"></canvas>
+  <div class="wrap" style="position:relative;z-index:2;">
+    <div class="section-header-grid founders-header" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:stretch;margin-bottom:56px;">
+      <div>
+        <div class="eyebrow" style="margin-bottom:16px;color:#0077B6;">The Team</div>
+        <h2 style="font-size:clamp(28px,3vw,40px);font-weight:800;line-height:1.05;letter-spacing:-0.03em;color:#0F172A;margin-bottom:0;">Built by operators who understand the intersection of media spend and AI.</h2>
+      </div>
+      <div style="display:flex;align-items:center;">
+        <p style="font-size:17px;color:#475569;line-height:1.7;">No researchers building in a vacuum. We have lived on both sides of the exact transaction we are rebuilding.</p>
+      </div>
     </div>
 
     <div class="founders-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -1026,13 +1243,49 @@ document.querySelectorAll('.who-preview').forEach(p => {
   </div>
 </section>
 
+<script>
+(function(){
+  const c=document.getElementById('teamDotCanvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  let W,H,pulse=0;
+  const S=28,BASE=[0,100,160],PC=[0,119,182];
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function lerpC(a,b,t){return[Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))];}
+  function resize(){W=c.width=c.parentElement.offsetWidth;H=c.height=c.parentElement.offsetHeight;}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,mx=Math.sqrt(cx*cx+cy*cy);
+    pulse=(pulse+0.004)%1;
+    const sx=(W%S)/2,sy=(H%S)/2;
+    const cols=Math.ceil(W/S)+2,rows=Math.ceil(H/S)+2;
+    for(let r=0;r<rows;r++)for(let cc=0;cc<cols;cc++){
+      const x=sx+cc*S,y=sy+r*S;
+      const norm=Math.sqrt((x-cx)**2+(y-cy)**2)/mx;
+      const mask=Math.pow(Math.max(0,1-norm*1.4),1.2);
+      if(mask<0.01)continue;
+      const wp=norm-pulse;
+      const wave=Math.exp(-(wp*wp)/0.004)*(1-norm*0.7);
+      const alpha=Math.min(lerp(0.18,0.45,1-norm)*mask+wave*0.5*mask,0.75);
+      const col=wave>0.05?lerpC(BASE,PC,Math.min(wave*1.2,1)):BASE;
+      ctx.beginPath();ctx.arc(x,y,1.0+wave*0.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`;ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('load',()=>{resize();draw();});
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+</script>
+
 <!-- ══════ EMAIL CAPTURE ══════ -->
 <section class="section" style="background:#0F172A;position:relative;overflow:hidden;" id="email-capture">
   <canvas id="radial-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6;"></canvas>
   <div class="wrap" style="position:relative;z-index:1;">
     <div class="email-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
       <div>
-        <div class="eyebrow" style="color:#475569;margin-bottom:16px;">Book a Demo</div>
+        <div class="eyebrow" style="color:#94A3B8;margin-bottom:16px;">Book a Demo</div>
         <h2 class="h2" style="color:#F8FAFC;margin-bottom:16px;">Let's talk.</h2>
         <p style="font-size:17px;line-height:1.65;color:#94A3B8;letter-spacing:-0.01em;margin-bottom:8px;">
           We are selectively onboarding retailers, platforms and agencies. Fill in your details and we'll be in touch.
@@ -1040,8 +1293,8 @@ document.querySelectorAll('.who-preview').forEach(p => {
       </div>
 
       <div>
-        <div class="email-form-panel" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:36px;">
-          <div style="font-family:'Fira Code',monospace;font-size:10px;color:#4F46E5;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;">Leave your details</div>
+        <div class="email-form-panel" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:36px;">
+          <div style="font-family:'Fira Code',monospace;font-size:10px;color:#94A3B8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;">Leave your details</div>
 
           <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
             <input
@@ -1077,7 +1330,7 @@ document.querySelectorAll('.who-preview').forEach(p => {
             Book a Demo →
           </button>
 
-          <p style="font-size:12px;color:#334155;margin-top:14px;letter-spacing:-0.01em;font-family:'Fira Code',monospace;">
+          <p style="font-size:12px;color:#94A3B8;margin-top:14px;letter-spacing:-0.01em;font-family:'Fira Code',monospace;">
             We review every application.
           </p>
         </div>
@@ -1087,72 +1340,72 @@ document.querySelectorAll('.who-preview').forEach(p => {
 </section>
 
 <!-- ══════ FAQ ══════ -->
-<section class="section" style="background:var(--surface);" id="faq">
+<section class="section" style="background:#FFFFFF;" id="faq">
   <div class="wrap" style="max-width:720px;margin:0 auto;">
     <div style="margin-bottom:48px;">
-      <div class="eyebrow" style="margin-bottom:16px;">FAQ</div>
-      <h2 class="h2" style="margin-bottom:0;">Common questions.</h2>
+      <div class="eyebrow" style="margin-bottom:16px;color:#0077B6;">FAQ</div>
+      <h2 class="h2" style="margin-bottom:0;color:#0F172A;">Common questions.</h2>
     </div>
 
     <div id="faq-list" style="display:flex;flex-direction:column;gap:2px;">
 
-      <div class="faq-item" style="border:1px solid var(--border);border-radius:8px 8px 0 0;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-radius:8px 8px 0 0;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">What exactly is Handpicker?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">Handpicker is infrastructure for agentic commerce. It enables personalised product discovery with or without a customer profile — in real time from intent signals alone, or as a full agentic experience when a profile exists. The same infrastructure powers both.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);"><strong>Handpicker</strong> is infrastructure for agentic commerce. It enables personalised product discovery with or without a customer profile — in real time from intent signals alone, or as a full agentic experience when a profile exists. The same infrastructure powers both.</div>
         </div>
       </div>
 
-      <div class="faq-item" style="border:1px solid var(--border);border-top:none;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-top:none;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">How is this different from what we already use?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">Existing tools optimise around the legacy journey — search queries, browsing behaviour, ad clicks. When AI mediates the purchase, those signals disappear. Handpicker is built for the new model, operating inside the agentic journey rather than around it.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);">Existing tools optimise around the legacy journey — search queries, browsing behaviour, ad clicks. When AI mediates the purchase, those signals disappear. <strong>Handpicker</strong> is built for the new model, operating inside the agentic journey rather than around it.</div>
         </div>
       </div>
 
-      <div class="faq-item" style="border:1px solid var(--border);border-top:none;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-top:none;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">Who is Handpicker for?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">Retailers, e-commerce platforms, advertising agencies, and retail media networks. Anyone who has a stake in how products get discovered and purchased — and who needs to remain visible and relevant as AI increasingly mediates that process.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);">Retailers, e-commerce platforms, advertising agencies, and retail media networks. Anyone who has a stake in how products get discovered and purchased — and who needs to remain visible and relevant as AI increasingly mediates that process.</div>
         </div>
       </div>
 
-      <div class="faq-item" style="border:1px solid var(--border);border-top:none;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-top:none;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">Does it require a customer profile to work?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">No. Without a profile, Handpicker reads real-time intent signals and personalises on the spot. With a profile, it powers a full agentic experience. Both journeys run on the same infrastructure.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);">No. Without a profile, <strong>Handpicker</strong> reads real-time intent signals and personalises on the spot. With a profile, it powers a full agentic experience. Both journeys run on the same infrastructure.</div>
         </div>
       </div>
 
-      <div class="faq-item" style="border:1px solid var(--border);border-top:none;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-top:none;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">What does early access look like?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">We are selectively onboarding retailers, platforms and agencies before general availability. You book a demo, we review your application, and if there's a fit we move quickly. Spots are limited by design.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);">We are selectively onboarding retailers, platforms and agencies before general availability. You book a demo, we review your application, and if there's a fit we move quickly. Spots are limited by design.</div>
         </div>
       </div>
 
-      <div class="faq-item" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
-        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:var(--bg);border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div class="faq-item" style="border:1px solid #E2E8F0;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
+        <button onclick="toggleFaq(this)" style="width:100%;text-align:left;background:#FAF9F6;border:none;padding:22px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;">
           <span style="font-size:16px;font-weight:600;color:var(--h);letter-spacing:-0.01em;">Is Handpicker available now?</span>
           <span class="faq-chevron" style="color:var(--indigo);font-size:14px;flex-shrink:0;transition:transform .25s;">▾</span>
         </button>
         <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .3s ease;">
-          <div style="padding:0 24px 22px;font-size:15px;color:var(--body);line-height:1.7;border-top:1px solid var(--border);">We are in early access. The infrastructure exists and is being deployed with select partners. Book a demo to discuss what it looks like for your business.</div>
+          <div style="padding:0 24px 22px;font-size:15px;color:#475569;line-height:1.7;border-top:1px solid var(--border);">We are in early access. The infrastructure exists and is being deployed with select partners. Book a demo to discuss what it looks like for your business.</div>
         </div>
       </div>
 
@@ -1177,10 +1430,10 @@ function toggleFaq(btn) {
 </script>
 
 <!-- ══════ CLOSING ══════ -->
-<section class="closing-section" style="background:var(--bg);border-top:1px solid var(--border);padding:72px 0;text-align:center;">
+<section class="closing-section" style="background:#FAF9F6;border-top:1px solid #E2E8F0;padding:72px 0;text-align:center;">
   <div class="wrap">
-    <h2 class="h2 closing-h2" style="margin-bottom:12px;max-width:560px;margin-left:auto;margin-right:auto;">The infrastructure exists.<br>The window is open.</h2>
-    <p class="body-lg" style="max-width:400px;margin:0 auto 32px;color:var(--body);">Let's talk about what it looks like for your business.</p>
+    <h2 class="h2 closing-h2" style="margin-bottom:12px;max-width:560px;margin-left:auto;margin-right:auto;color:#0F172A;">The infrastructure <span style="color:#0077B6;">exists.</span><br><span style="font-size:0.88em;">The window is open.</span></h2>
+    <p class="body-lg" style="max-width:400px;margin:0 auto 32px;color:#475569;">Let's talk about what it looks like for your business.</p>
     <a href="#email-capture" class="btn-indigo">Book a Demo →</a>
   </div>
 </section>
