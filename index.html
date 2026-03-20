@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-<head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-41LHJR033S"></script>
 <script>
@@ -10,6 +9,7 @@
 
   gtag('config', 'G-41LHJR033S');
 </script>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handpicker — Convert Intent into Sales</title>
@@ -253,7 +253,8 @@
     .h1 { font-size: clamp(40px,11vw,60px) !important; }
     .hero-sub { font-size: 15px !important; max-width: 100% !important; }
     .hero-ctas { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-    .btn-indigo { width: 100% !important; text-align: center !important; }
+    .hero-ctas .btn-indigo { width: 100% !important; text-align: center !important; }
+    .btn-indigo { max-width: 100%; box-sizing: border-box; }
     .hero-stats { flex-direction: column !important; gap: 20px !important; padding-top: 28px !important; }
     .hero-stat-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; padding-bottom: 20px !important; border-bottom: 1px solid var(--border) !important; }
     .hero-stat-item:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
@@ -364,6 +365,7 @@
   @media(max-width:768px) {
     #mob-menu-btn { display: flex !important; }
     .nav-cta { display: none !important; }
+    .nav-links-desktop { display: none !important; }
 
     /* ── PROBLEM 3-col → 1-col ── */
     .problem-divider-line { display: none !important; }
@@ -510,12 +512,12 @@
     </div>
     <div class="flex items-center gap-3">
 
-      <a href="#email-capture" class="nav-cta btn-indigo">Book a Demo</a>
+      <a href="#email-capture" class="nav-cta btn-indigo" style="white-space:nowrap;">Book a Demo</a>
       <!-- Mobile hamburger -->
-      <button id="mob-menu-btn" onclick="toggleMobMenu()" style="display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;" aria-label="Menu">
-        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
-        <span style="display:block;width:20px;height:1.5px;background:var(--h);transition:all .2s;"></span>
-        <span style="display:block;width:14px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+      <button id="mob-menu-btn" onclick="toggleMobMenu()" style="display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:8px;min-width:36px;min-height:36px;" aria-label="Menu">
+        <span style="display:block;width:22px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:22px;height:1.5px;background:var(--h);transition:all .2s;"></span>
+        <span style="display:block;width:15px;height:1.5px;background:var(--h);transition:all .2s;"></span>
       </button>
     </div>
   </div>
@@ -553,7 +555,7 @@
         </h1>
 
         <p class="body-lg anim animate-fadeUp2" style="max-width:420px;margin-bottom:40px;color:#475569;">
-          The transition is happening. Be on the right side of it.
+          The transition to AI-mediated discovery is active. We built the intent layer to monetize it.
         </p>
 
         <div class="anim animate-fadeUp3 hero-ctas" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:56px;">
@@ -719,7 +721,8 @@
 
       <div style="background:rgba(0,119,182,0.07);border-top:1px solid rgba(0,119,182,0.3);border-bottom:1px solid rgba(0,119,182,0.08);border-right:1px solid rgba(0,119,182,0.2);border-left:none;border-radius:0 8px 8px 0;padding:40px 36px;position:relative;z-index:2;">
         <div style="font-size:38px;font-weight:800;color:#0077B6;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">03</div>
-        <div style="font-size:18px;font-weight:700;color:#0F172A;letter-spacing:-0.02em;">The window is now.</div>
+        <div style="font-size:18px;font-weight:700;color:#0F172A;letter-spacing:-0.02em;margin-bottom:12px;">The window is now.</div>
+        <p style="font-size:15px;color:#475569;line-height:1.65;">The players who integrate the infrastructure layer today will define who stays in the journey. This is being decided in 2026.</p>
       </div>
 
     </div>
