@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+<head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-41LHJR033S"></script>
 <script>
@@ -9,7 +10,6 @@
 
   gtag('config', 'G-41LHJR033S');
 </script>
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handpicker — Convert Intent into Sales</title>
@@ -1299,39 +1299,55 @@ document.querySelectorAll('.who-preview').forEach(p => {
         <div class="email-form-panel" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:36px;">
           <div style="font-family:'Fira Code',monospace;font-size:10px;color:#94A3B8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;">Leave your details</div>
 
-          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
-            <input
-              type="text"
-              placeholder="Your name"
-              class="email-input"
-              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
-            />
-            <input
-              type="email"
-              placeholder="Work email address"
-              class="email-input"
-              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
-            />
-            <input
-              type="text"
-              placeholder="Company name"
-              class="email-input"
-              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
-            />
-            <input
-              type="text"
-              placeholder="Your role / position"
-              class="email-input"
-              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
-            />
-          </div>
+          <form
+            action="https://formspree.io/f/mojkzarq"
+            method="POST"
+            onsubmit="handleDemoSubmit(event)"
+            style="margin:0;">
+            <input type="hidden" name="_subject" value="Handpicker demo request" />
 
-          <button
-            onclick="handleSubmit(this)"
-            class="btn-indigo"
-            style="width:100%;justify-content:center;text-align:center;cursor:pointer;border:none;">
-            Book a Demo →
-          </button>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your name"
+                autocomplete="name"
+                class="email-input"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Work email address"
+                autocomplete="email"
+                class="email-input"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+              />
+              <input
+                type="text"
+                name="company"
+                placeholder="Company name"
+                autocomplete="organization"
+                class="email-input"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+              />
+              <input
+                type="text"
+                name="role"
+                placeholder="Your role / position"
+                autocomplete="organization-title"
+                class="email-input"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-indigo"
+              style="width:100%;justify-content:center;text-align:center;cursor:pointer;border:none;">
+              Book a Demo →
+            </button>
+          </form>
 
           <p style="font-size:12px;color:#94A3B8;margin-top:14px;letter-spacing:-0.01em;font-family:'Fira Code',monospace;">
             We review every application.
@@ -1923,9 +1939,14 @@ function toggleFaq(btn) {
     });
   });
 
-  // ══════ 8. EMAIL FORM ══════
-  function handleSubmit(btn) {
-    const inputs = btn.closest('div').querySelectorAll('input');
+  // ══════ 8. EMAIL FORM (Formspree) ══════
+  const FORMSPREE_DEMO_URL = 'https://formspree.io/f/mojkzarq';
+
+  async function handleDemoSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    const inputs = form.querySelectorAll('.email-input');
     const name    = inputs[0].value.trim();
     const email   = inputs[1].value.trim();
     const company = inputs[2].value.trim();
@@ -1935,17 +1956,46 @@ function toggleFaq(btn) {
       inputs.forEach(i => {
         if (!i.value.trim()) {
           i.style.borderColor = 'rgba(220,38,38,0.5)';
-          setTimeout(() => i.style.borderColor = '', 2000);
+          setTimeout(() => { i.style.borderColor = ''; }, 2000);
         }
       });
       return;
     }
 
-    btn.textContent = '✓ Request received';
-    btn.style.background = '#16a34a';
-    btn.style.pointerEvents = 'none';
-    inputs.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; });
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    btn.style.opacity = '0.85';
+
+    try {
+      const res = await fetch(FORMSPREE_DEMO_URL, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      });
+      if (res.ok) {
+        btn.textContent = '✓ Request received';
+        btn.style.background = '#16a34a';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '1';
+        inputs.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; });
+      } else {
+        btn.textContent = 'Could not send — try again';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        setTimeout(() => { btn.textContent = origText; }, 4000);
+      }
+    } catch {
+      btn.textContent = 'Could not send — try again';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      setTimeout(() => { btn.textContent = origText; }, 4000);
+    }
   }
 
   document.querySelectorAll('.email-input').forEach(input => {
-    input.addEventListener('focus', () => { input
+    input.addEventListener('focus', () => { input.style.borderColor = ''; });
+  });
+</script>
+</body>
+</html>
