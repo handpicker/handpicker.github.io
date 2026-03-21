@@ -246,19 +246,18 @@
     .nav-cta { font-size: 13px !important; padding: 8px 16px !important; }
 
     /* ── HERO ── */
-    .hero-section { padding-top: 72px !important; min-height: auto !important; padding-bottom: 64px !important; }
-    .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
-    .hero-right { display: none !important; }
-    .hero-eyebrow { font-size: 10px !important; }
-    .h1 { font-size: clamp(40px,11vw,60px) !important; }
-    .hero-sub { font-size: 15px !important; max-width: 100% !important; }
-    .hero-ctas { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-    .hero-ctas .btn-indigo { width: 100% !important; text-align: center !important; }
-    .btn-indigo { max-width: 100%; box-sizing: border-box; }
-    .hero-stats { flex-direction: column !important; gap: 20px !important; padding-top: 28px !important; }
-    .hero-stat-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; padding-bottom: 20px !important; border-bottom: 1px solid var(--border) !important; }
-    .hero-stat-item:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
-
+    .hero-section { padding-top: 72px !important; min-height: auto !important; padding-bottom: 64px !important; overflow: hidden !important; }
+.hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+.hero-right { display: none !important; }
+.hero-eyebrow { font-size: 10px !important; }
+.h1 { font-size: clamp(36px,10vw,56px) !important; }
+.hero-sub { font-size: 15px !important; max-width: 100% !important; }
+.hero-ctas { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+.hero-ctas .btn-indigo { width: 100% !important; text-align: center !important; box-sizing: border-box !important; }
+.btn-indigo { max-width: 100% !important; box-sizing: border-box !important; }
+.anim.animate-fadeUp4 { flex-wrap: wrap !important; }
+.hero-stats { flex-direction: column !important; gap: 20px !important; padding-top: 28px !important; }
+    
     /* ── SECTION HEADER GRIDS (all 2-col headers) ── */
     .section-header-grid { grid-template-columns: 1fr !important; gap: 24px !important; margin-bottom: 36px !important; }
     .section-header-grid > p { padding-top: 0 !important; }
@@ -566,7 +565,7 @@
         </div>
 
         <!-- Built for -->
-        <div class="anim animate-fadeUp4" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;padding-top:28px;border-top:1px solid var(--border);overflow:hidden;">
+        <div class="anim animate-fadeUp4" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--border);overflow:hidden;">
           <span style="font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mono);white-space:nowrap;flex-shrink:0;">Built for</span>
           <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">Retailers</span>
           <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,119,182,0.06);border:1px solid rgba(0,119,182,0.12);padding:5px 12px;border-radius:6px;font-family:'Fira Code',monospace;font-size:11px;color:var(--indigo);white-space:nowrap;flex-shrink:0;">E-Commerce Platforms</span>
