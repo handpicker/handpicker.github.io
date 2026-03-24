@@ -1341,7 +1341,18 @@ document.querySelectorAll('.who-preview').forEach(p => {
                 style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;"
               />
             </div>
-
+            <div style="margin-bottom:16px;">
+              <select name="organization_type" required style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--body);background:var(--bg);appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%23888%22 stroke-width=%221.5%22 fill=%22none%22/></svg>');background-repeat:no-repeat;background-position:right 16px center;cursor:pointer;">
+                <option value="" disabled selected>Organisation type</option>
+                <option value="Retailer">Retailer</option>
+                <option value="E-Commerce">E-Commerce Platform</option>
+                <option value="Advertising Agency">Advertising Agency</option>
+                <option value="Retail Media Network">Retail Media Network (RMN)</option>
+                <option value="Brand">Brand</option>
+                <option value="Investor">Investor</option>
+                <option value="Other">Other (specify in message)</option>
+              </select>
+            </div>
             <button
               type="submit"
               class="btn-indigo"
