@@ -1352,11 +1352,11 @@ document.querySelectorAll('.who-preview').forEach(p => {
                 <option value="Investor">Investor</option>
                 <option value="Other">Other (specify in message)</option>
               </select>
-              <div style="margin-bottom:16px;">
+              <div id="msg-wrap" style="margin-bottom:16px;display:none;">
               <textarea
                 id="org-message"
                 name="message"
-                placeholder="Tell us about your use case..."
+                placeholder="Please specify your organisation type."
                 rows="4"
                 class="email-input"
                 style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#F8FAFC;width:100%;resize:vertical;min-height:100px;font-family:inherit;font-size:14px;line-height:1.6;box-sizing:border-box;"
@@ -2019,15 +2019,15 @@ function toggleFaq(btn) {
     input.addEventListener('focus', () => { input.style.borderColor = ''; });
   });
   function handleOrgType(select) {
+    var wrap = document.getElementById('msg-wrap');
     var msg = document.getElementById('org-message');
     if (select.value === 'Other') {
-      msg.placeholder = 'Please specify your organisation type and tell us about your use case...';
+      wrap.style.display = 'block';
       msg.required = true;
-      msg.style.borderColor = 'rgba(0,119,182,0.6)';
     } else {
-      msg.placeholder = 'Tell us about your use case...';
+      wrap.style.display = 'none';
       msg.required = false;
-      msg.style.borderColor = 'rgba(255,255,255,0.08)';
+      msg.value = '';
     }
   }
 </script>
